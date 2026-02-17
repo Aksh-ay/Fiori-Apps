@@ -1,0 +1,19 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Delivery Aggregation By Sales Document'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZSD_I_DeliveryAgg
+  as select from lips as _DeliveryItem
+    inner join   likp as _DeliveryHeader on _DeliveryHeader.vbeln = _DeliveryItem.vbeln
+{
+  key _DeliveryItem.vgbel              as SalesOrderNo,   // preceding doc (sales order/contract)
+  key _DeliveryItem.vgpos              as SalesOrderItem, // preceding item
+
+      @Semantics.dateTime: true
+      max( _DeliveryHeader.wadat_ist ) as LastShippedDate
+}
+where
+  _DeliveryHeader.wadat_ist is not null
+group by
+  _DeliveryItem.vgbel,
+  _DeliveryItem.vgpos

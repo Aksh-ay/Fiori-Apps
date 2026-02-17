@@ -1,0 +1,31 @@
+<mvc:View controllerName="zsd_sales_week.controller.SalesView"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:table="sap.ui.table">
+    <Page>
+        <customHeader>
+            <Toolbar>
+                <!-- <Image src="images/jindal.png" width="40px" height="40px" /> -->
+                <ToolbarSpacer />
+                <Title text="Day/Week wise Sales" level="H1" class="sapUiTinyMarginBegin" />
+                <ToolbarSpacer />
+            </Toolbar>
+        </customHeader>
+        <content>
+            <IconTabBar expanded="true" expandable="false" headerMode="Inline" select=".onTabSelect">
+                <items>
+                    <IconTabFilter id="tabCurrent" text="Overview" key="overview" class="IconTabBar" showAll="true">
+                        <mvc:XMLView viewName="zsd_sales_week.view.Overview" displayBlock="true"/>
+                    </IconTabFilter>
+                    <IconTabFilter id="tabHistorical" text="Categorized" key="categorized" showAll="true">
+                        <mvc:XMLView viewName="zsd_sales_week.view.Categorized" displayBlock="true"/>
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+        <footer>
+        </footer>
+    </Page>
+</mvc:View>

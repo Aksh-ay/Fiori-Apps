@@ -1,0 +1,73 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Billing Aggregation By Sales Document'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZSD_I_BillingAgg
+  with parameters
+    p_year  : gjahr,
+    p_month : monat
+  as select from vbrp as _BillItem
+    inner join   vbrk as _BillHeader on _BillHeader.vbeln = _BillItem.vbeln
+{
+      /* ===============================
+         Sales Order Number
+         =============================== */
+  key _BillItem.aubel as SalesOrderNo,
+  key _BillItem.aupos as SalesOrderItem,
+
+      /* ===============================
+         Previous Month Sales
+         =============================== */
+      sum(
+          case
+              when _BillHeader.fkdat >=
+                   DATS_ADD_MONTHS(
+                       cast( concat( concat( $parameters.p_year, $parameters.p_month ), '01') as abap.dats ),
+                       -1,
+                       'INITIAL'
+                   )
+               and _BillHeader.fkdat < cast( concat( concat( $parameters.p_year, $parameters.p_month ), '01') as abap.dats )
+              then cast( _BillItem.fkimg as abap.dec( 15, 3 ) )
+              else cast( 0 as abap.dec( 15, 3 ) )
+          end
+      )               as PrevMonthSales,
+
+      /* ===============================
+         Current Month Sales
+         =============================== */
+      sum(
+          case
+              when _BillHeader.fkdat >= cast( concat( concat( $parameters.p_year, $parameters.p_month ), '01') as abap.dats )
+               and _BillHeader.fkdat <
+                   DATS_ADD_MONTHS(
+                       cast( concat( concat( $parameters.p_year, $parameters.p_month ), '01') as abap.dats ),
+                       1,
+                       'INITIAL'
+                   )
+              then cast( _BillItem.fkimg as abap.dec( 15, 3 ) )
+              else cast( 0 as abap.dec( 15, 3 ) )
+          end
+      )               as CurrMonthSales,
+
+      /* ===============================
+         Total Billed Quantity
+         (up to current execution month)
+         =============================== */
+      sum(
+          case
+              when _BillHeader.fkdat <
+                   DATS_ADD_MONTHS(
+                       cast( concat( concat( $parameters.p_year, $parameters.p_month ), '01') as abap.dats ),
+                       1,
+                       'INITIAL'
+                   )
+              then cast( _BillItem.fkimg as abap.dec( 15, 3 ) )
+              else cast( 0 as abap.dec( 15, 3 ) )
+          end
+      )               as TotalBilledQty
+}
+where
+  _BillItem.aubel is not null
+group by
+  _BillItem.aubel,
+  _BillItem.aupos;

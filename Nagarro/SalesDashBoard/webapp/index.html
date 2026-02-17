@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sales and Marketing</title>
+    <style>
+        html, body, body > div, #container, #container-uiarea {
+            height: 100%;
+        }
+    </style>
+    <script
+        id="sap-ui-bootstrap"
+        src="resources/sap-ui-core.js"
+        data-sap-ui-theme="sap_fiori_3"
+        data-sap-ui-resourceroots='{
+            "zsd_sales_dash": "./"
+        }'
+        data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+        data-sap-ui-compatVersion="edge"
+        data-sap-ui-async="true"
+        data-sap-ui-frameOptions="trusted"
+    ></script>
+    
+<script>
+  window["sap-ushell-config"] = {
+    services: {
+      NavTargetResolution: {
+        config: {
+          enableClientSideTargetResolution: true
+        }
+      }
+    },
+    applications: {
+      "zsd_sales_dash-display": {
+        additionalInformation: "SAPUI5.Component=zsd_sales_dash",
+        applicationType: "URL",
+        url: "/zsd_sales_dash/webapp"
+      },
+      "ZSALES-overview": {
+        additionalInformation: "SAPUI5.Component=zsales",
+        applicationType: "URL",
+        url: "/zsales/webapp"
+      }
+    }
+  };
+</script>
+
+</head>
+<body class="sapUiBody sapUiSizeCompact" id="content">
+    <div
+        data-sap-ui-component
+        data-name="zsd_sales_dash"
+        data-id="container"
+        data-settings='{"id" : "zsd_sales_dash"}'
+        data-handle-validation="true"
+    ></div>
+</body>
+</html>

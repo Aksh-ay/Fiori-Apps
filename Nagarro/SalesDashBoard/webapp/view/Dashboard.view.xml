@@ -1,0 +1,98 @@
+
+<mvc:View
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:f="sap.f"
+  xmlns:core="sap.ui.core"
+  controllerName="zsd_sales_dash.controller.Dashboard">
+
+  <Page title="Sales Dashboard" class="sapUiContentPadding">
+    <content>
+      <f:GridContainer
+        containerQuery="true"
+        width="auto"
+        items="">
+        <f:layout>
+          <f:GridContainerSettings rowSize="8rem" columnSize="12rem" gap="1rem" />
+        </f:layout>
+
+        <!-- Template for each tile -->
+        <GenericTile
+          mode="ContentMode"
+          class="sapUiTinyMargin"
+          press="onTilePress"
+          header="Sales Overview"
+          subheader="">
+          <TileContent>
+            <ImageContent src="sap-icon://sales-order" />
+            <!-- Alternative (both valid):
+            <Content>
+              <core:Icon src="{oGlobalModel>icon}" />
+            </Content>
+            -->
+          </TileContent>
+        </GenericTile>
+         <GenericTile
+          mode="ContentMode"
+          class="sapUiTinyMargin"
+          press="onTilePress"
+          header="Roll Over Quantity"
+          subheader="">
+          <TileContent>
+            <ImageContent src="sap-icon://sales-order" />
+            <!-- Alternative (both valid):
+            <Content>
+              <core:Icon src="{oGlobalModel>icon}" />
+            </Content>
+            -->
+          </TileContent>
+        </GenericTile>
+         <GenericTile
+          mode="ContentMode"
+          class="sapUiTinyMargin"
+          press="onTilePress"
+          header="Sales Invoice"
+          subheader="">
+          <TileContent>
+            <ImageContent src="sap-icon://sales-order" />
+            <!-- Alternative (both valid):
+            <Content>
+              <core:Icon src="{oGlobalModel>icon}" />
+            </Content>
+            -->
+          </TileContent>
+        </GenericTile>
+         <GenericTile
+          mode="ContentMode"
+          class="sapUiTinyMargin"
+          press="onTilePress"
+          header="Day Week Wise Sales"
+          subheader="">
+          <TileContent>
+            <ImageContent src="sap-icon://sales-order" />
+            <!-- Alternative (both valid):
+            <Content>
+              <core:Icon src="{oGlobalModel>icon}" />
+            </Content>
+            -->
+          </TileContent>
+        </GenericTile>
+         <GenericTile
+          mode="ContentMode"
+          class="sapUiTinyMargin"
+          press="onTilePress"
+          header="Balance Order Quantity"
+          subheader="">
+          <TileContent>
+            <ImageContent src="sap-icon://sales-order" />
+            <!-- Alternative (both valid):
+            <Content>
+              <core:Icon src="{oGlobalModel>icon}" />
+            </Content>
+            -->
+          </TileContent>
+        </GenericTile>
+      </f:GridContainer>
+    </content>
+  </Page>
+</mvc:View>

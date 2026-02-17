@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="CodeList"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Measures.V1" Alias="Measures"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Validation.V1" Alias="Validation"/>
+    </edmx:Reference>
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZSD_DAY_WEEK_SALES_CDS" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <EntityType Name="ZSD_DAY_WEEK_SALESType" sap:label="Day Week wise Sales View" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="p_start_date"/>
+                    <PropertyRef Name="p_end_date"/>
+                    <PropertyRef Name="ContractNo"/>
+                </Key>
+                <Property Name="p_start_date" Type="Edm.String" Nullable="false" MaxLength="8" sap:display-format="UpperCase" sap:label="char8"/>
+                <Property Name="p_end_date" Type="Edm.String" Nullable="false" MaxLength="8" sap:display-format="UpperCase" sap:label="char8"/>
+                <Property Name="ContractNo" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:label="Sales document" sap:quickinfo="Sales Document"/>
+                <Property Name="SalesOrderNo" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Sales document" sap:quickinfo="Sales Document"/>
+                <Property Name="BillingYear" Type="Edm.String" MaxLength="4"/>
+                <Property Name="BillingMonth" Type="Edm.String" MaxLength="2"/>
+                <Property Name="BillDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Billing Date"/>
+                <Property Name="ProductCategory" Type="Edm.String" MaxLength="9" sap:display-format="UpperCase" sap:label="Material Group"/>
+                <Property Name="ProductCategoryDesc" Type="Edm.String" MaxLength="20" sap:label="Material Group Desc." sap:quickinfo="Material Group Description"/>
+                <Property Name="SoldToParty" Type="Edm.String" MaxLength="10"/>
+                <Property Name="ShipToParty" Type="Edm.String" MaxLength="10"/>
+                <Property Name="ShipToPartyName" Type="Edm.String" MaxLength="40" sap:label="Name" sap:quickinfo="Name 1"/>
+                <Property Name="USD_Currency" Type="Edm.String" MaxLength="5" sap:semantics="currency-code"/>
+                <Property Name="USDWtPrice" Type="Edm.Decimal" Precision="16" Scale="3" sap:unit="USD_Currency"/>
+                <Property Name="SalesQuantity" Type="Edm.String" MaxLength="3" sap:label="Sales unit" sap:semantics="unit-of-measure"/>
+                <Property Name="SumOfQuantity" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="SalesQuantity"/>
+                <NavigationProperty Name="Parameters" Relationship="ZSD_DAY_WEEK_SALES_CDS.assoc_8A18F0E3769BB314940E55F433023B99" FromRole="ToRole_assoc_8A18F0E3769BB314940E55F433023B99" ToRole="FromRole_assoc_8A18F0E3769BB314940E55F433023B99" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="ZSD_DAY_WEEK_SALESParameters" sap:semantics="parameters" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="p_start_date"/>
+                    <PropertyRef Name="p_end_date"/>
+                </Key>
+                <Property Name="p_start_date" Type="Edm.String" Nullable="false" MaxLength="8" sap:display-format="UpperCase" sap:parameter="mandatory" sap:label="char8" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="p_end_date" Type="Edm.String" Nullable="false" MaxLength="8" sap:display-format="UpperCase" sap:parameter="mandatory" sap:label="char8" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="Set" Relationship="ZSD_DAY_WEEK_SALES_CDS.assoc_8A18F0E3769BB314940E55F433023B99" FromRole="FromRole_assoc_8A18F0E3769BB314940E55F433023B99" ToRole="ToRole_assoc_8A18F0E3769BB314940E55F433023B99"/>
+            </EntityType>
+            <Association Name="assoc_8A18F0E3769BB314940E55F433023B99" sap:content-version="1">
+                <End Type="ZSD_DAY_WEEK_SALES_CDS.ZSD_DAY_WEEK_SALESParameters" Multiplicity="1" Role="FromRole_assoc_8A18F0E3769BB314940E55F433023B99"/>
+                <End Type="ZSD_DAY_WEEK_SALES_CDS.ZSD_DAY_WEEK_SALESType" Multiplicity="*" Role="ToRole_assoc_8A18F0E3769BB314940E55F433023B99"/>
+            </Association>
+            <EntityContainer Name="ZSD_DAY_WEEK_SALES_CDS_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="ZSD_DAY_WEEK_SALESSet" EntityType="ZSD_DAY_WEEK_SALES_CDS.ZSD_DAY_WEEK_SALESType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="ZSD_DAY_WEEK_SALES" EntityType="ZSD_DAY_WEEK_SALES_CDS.ZSD_DAY_WEEK_SALESParameters" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <AssociationSet Name="assoc_8A18F0E3769BB314940E55F433023B99" Association="ZSD_DAY_WEEK_SALES_CDS.assoc_8A18F0E3769BB314940E55F433023B99" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ZSD_DAY_WEEK_SALES" Role="FromRole_assoc_8A18F0E3769BB314940E55F433023B99"/>
+                    <End EntitySet="ZSD_DAY_WEEK_SALESSet" Role="ToRole_assoc_8A18F0E3769BB314940E55F433023B99"/>
+                </AssociationSet>
+            </EntityContainer>
+            <Annotations Target="ZSD_DAY_WEEK_SALES_CDS.ZSD_DAY_WEEK_SALES_CDS_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+            </Annotations>
+            <Annotations Target="ZSD_DAY_WEEK_SALES_CDS.ZSD_DAY_WEEK_SALES_CDS_Entities/ZSD_DAY_WEEK_SALES" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonFilterableProperties">
+                            <Collection>
+                                <PropertyPath>p_start_date</PropertyPath>
+                                <PropertyPath>p_end_date</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.NavigationRestrictions">
+                    <Record>
+                        <PropertyValue Property="RestrictedProperties">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="Parameters"/>
+                                    <PropertyValue Property="FilterRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Filterable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.SortRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonSortableProperties">
+                            <Collection>
+                                <PropertyPath>p_start_date</PropertyPath>
+                                <PropertyPath>p_end_date</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <atom:link rel="self" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_DAY_WEEK_SALES_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_DAY_WEEK_SALES_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

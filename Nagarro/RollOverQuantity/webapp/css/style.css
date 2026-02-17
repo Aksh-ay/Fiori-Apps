@@ -1,0 +1,41 @@
+.sapUiDSC>aside[class^="sapUiDSCSpan"] {
+width: 400px !important;
+}
+
+.p13nDialogHeader .sapMDialogTitle {
+    font-weight: 700 !important;
+    color: #000000 !important;
+}
+
+.p13nClearBtn .sapMBtnInner {
+    border: none !important;
+    background: transparent !important;
+}
+
+.p13nClearBtn .sapMBtnInner.sapMBtnFocus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.p13nClearBtn .sapMBtnIcon {
+    font-size: 1rem !important;
+}
+
+/* Force black icon in ALL states */
+.p13nClearBtn .sapMBtnIcon,
+.p13nClearBtn:hover .sapMBtnIcon,
+.p13nClearBtn .sapMBtnInner.sapMBtnActive .sapMBtnIcon {
+    color: #000000 !important;
+}
+
+.p13nHeaderToolbar .sapMBarChild:first-child {
+    margin-right: 0.25rem !important;
+}
+
+.p13nHeaderToolbar .sapMBarChild:not(:first-child) {
+    margin-left: 0 !important;
+}
+
+.p13nHeaderToolbar .sapMText {
+    font-weight: 600;
+}

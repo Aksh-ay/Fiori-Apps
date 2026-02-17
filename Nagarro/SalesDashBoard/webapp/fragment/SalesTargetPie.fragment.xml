@@ -1,0 +1,183 @@
+
+<core:FragmentDefinition
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:layout="sap.ui.layout"
+  xmlns:viz="sap.viz.ui5.controls"
+  xmlns:viz.data="sap.viz.ui5.data"
+  xmlns:viz.feeds="sap.viz.ui5.controls.common.feeds">
+
+  <Dialog
+    id="salesPieDialog"
+    title="Sales Quantity – Target vs Actual"
+    horizontalScrolling="false"
+    verticalScrolling="true"
+    resizable="true"
+    draggable="true"
+    contentWidth="920px"
+    contentHeight="680px"
+    afterOpen=".onSalesPieAfterOpen"
+    afterClose=".onSalesPieAfterClose">
+
+    <!-- Content container -->
+    <VBox class="sapUiSmallMargin">
+      <Title text="Sales Quantity – Target vs Actual" level="H5" />
+
+      <!-- Responsive grid: 2 pies on top row, 1 full-width below -->
+      <layout:Grid
+        defaultSpan="L6 M6 S12"
+        hSpacing="1"
+        vSpacing="1"
+        width="100%">
+
+        <!-- === PIE 1: By Product Category === -->
+        <layout:content>
+          <VBox>
+            <Title text="By Product Category" level="H6"/>
+            <viz:VizFrame
+              id="vfSalesPieCategory"
+              vizType="pie"
+              uiConfig="{applicationSet:'fiori'}"
+              width="100%"
+              height="300px">
+
+              <viz:dataset>
+                <viz.data:FlattenedDataset data="{pieModelCategory>/data}">
+                  <viz.data:dimensions>
+                    <viz.data:DimensionDefinition
+                      name="Category"
+                      value="{pieModelCategory>label}"/>
+                  </viz.data:dimensions>
+                  <viz.data:measures>
+                    <viz.data:MeasureDefinition
+                      name="Quantity"
+                      value="{pieModelCategory>value}"/>
+                  </viz.data:measures>
+                </viz.data:FlattenedDataset>
+              </viz:dataset>
+
+              <viz:feeds>
+                <viz.feeds:FeedItem uid="size"  type="Measure"   values="Quantity"/>
+                <viz.feeds:FeedItem uid="color" type="Dimension" values="Category"/>
+              </viz:feeds>
+
+              <!-- Optional vizProperties (uncomment & adjust if needed)
+              <viz:VizProperties>
+                {
+                  "plotArea": {
+                    "colorPalette": ["#2F7ED8", "#A6C7ED", "#90ED7D", "#F7A35C"],
+                    "dataLabel": { "visible": true, "type": "value", "formatString": [["#,##0"]] }
+                  },
+                  "legend": { "visible": true },
+                  "title": { "visible": false },
+                  "tooltip": { "visible": true }
+                }
+              </viz:VizProperties>
+              -->
+            </viz:VizFrame>
+          </VBox>
+        </layout:content>
+
+        <!-- === PIE 2: By Month === -->
+        <layout:content>
+          <VBox>
+            <Title text="By Month" level="H6"/>
+            <viz:VizFrame
+              id="vfSalesPieMonth"
+              vizType="pie"
+              uiConfig="{applicationSet:'fiori'}"
+              width="100%"
+              height="300px">
+
+              <viz:dataset>
+                <viz.data:FlattenedDataset data="{pieModelMonth>/data}">
+                  <viz.data:dimensions>
+                    <viz.data:DimensionDefinition
+                      name="Month"
+                      value="{pieModelMonth>label}"/>
+                  </viz.data:dimensions>
+                  <viz.data:measures>
+                    <viz.data:MeasureDefinition
+                      name="Quantity"
+                      value="{pieModelMonth>value}"/>
+                  </viz.data:measures>
+                </viz.data:FlattenedDataset>
+              </viz:dataset>
+
+              <viz:feeds>
+                <viz.feeds:FeedItem uid="size"  type="Measure"   values="Quantity"/>
+                <viz.feeds:FeedItem uid="color" type="Dimension" values="Month"/>
+              </viz:feeds>
+
+              <!-- Optional vizProperties
+              <viz:VizProperties>
+                {
+                  "plotArea": {
+                    "dataLabel": { "visible": true, "type": "value", "formatString": [["#,##0"]] }
+                  },
+                  "legend": { "visible": true },
+                  "title": { "visible": false },
+                  "tooltip": { "visible": true }
+                }
+              </viz:VizProperties>
+              -->
+            </viz:VizFrame>
+          </VBox>
+        </layout:content>
+
+        <!-- === PIE 3: By Company (e.g., JSS, SS) === -->
+        <layout:content>
+          <VBox>
+            <Title text="By Company" level="H6"/>
+            <viz:VizFrame
+              id="vfSalesPieCompany"
+              vizType="pie"
+              uiConfig="{applicationSet:'fiori'}"
+              width="100%"
+              height="300px">
+
+              <viz:dataset>
+                <viz.data:FlattenedDataset data="{pieModelCompany>/data}">
+                  <viz.data:dimensions>
+                    <viz.data:DimensionDefinition
+                      name="Company"
+                      value="{pieModelCompany>label}"/>
+                  </viz.data:dimensions>
+                  <viz.data:measures>
+                    <viz.data:MeasureDefinition
+                      name="Quantity"
+                      value="{pieModelCompany>value}"/>
+                   </viz.data:measures>
+                </viz.data:FlattenedDataset>
+              </viz:dataset>
+
+              <viz:feeds>
+                <viz.feeds:FeedItem uid="size"  type="Measure"   values="Quantity"/>
+                <viz.feeds:FeedItem uid="color" type="Dimension" values="Company"/>
+              </viz:feeds>
+
+              <!-- Optional vizProperties
+              <viz:VizProperties>
+                {
+                  "plotArea": {
+                    "dataLabel": { "visible": true, "type": "value", "formatString": [["#,##0"]] }
+                  },
+                  "legend": { "visible": true },
+                  "title": { "visible": false },
+                  "tooltip": { "visible": true }
+                }
+              </viz:VizProperties>
+              -->
+            </viz:VizFrame>
+          </VBox>
+        </layout:content>
+
+      </layout:Grid>
+    </VBox>
+
+    <endButton>
+      <Button text="Close" press="._closeSalesPieDialog" />
+    </endButton>
+  </Dialog>
+</core:FragmentDefinition>

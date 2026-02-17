@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>FLP Sandbox – Sales Dashboard</title>
+
+    <!-- UI5 bootstrap -->
+    <script id="sap-ui-bootstrap"
+            src="https://sdk.openui5.org/resources/sap-ui-core.js"
+            data-sap-ui-theme="sap_fiori_3"
+            data-sap-ui-libs="sap.m,sap.f,sap.ushell,sap.ui.core"
+            data-sap-ui-xx-waitForTheme="true"
+            data-sap-ui-compatVersion="edge"
+            data-sap-ui-preload="async"></script>
+
+    <!-- Load sandbox config JSON -->
+    <script>
+      fetch("../appconfig/fioriSandboxConfig.json")
+        .then(res => res.json())
+        .then(cfg => {
+          window["sap-ushell-config"] = cfg;
+          sap.ui.getCore().attachInit(function () {
+            sap.ushell.Container.createRenderer().placeAt("content");
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load fioriSandboxConfig.json:", err);
+          document.body.innerText = "Failed to load fioriSandboxConfig.json";
+        });
+    </script>
+
+    <style>
+      html, body, #content { height: 100%; margin: 0; }
+    </style>
+  </head>
+  <body class="sapUiBody" id="content"></body>
+</html>

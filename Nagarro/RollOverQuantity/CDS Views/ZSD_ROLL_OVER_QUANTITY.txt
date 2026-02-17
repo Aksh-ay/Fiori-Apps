@@ -1,0 +1,122 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Roll Over Quantity View'
+@Metadata.ignorePropagatedAnnotations: true
+@VDM.viewType: #CONSUMPTION
+@OData.publish: true
+@Analytics.dataCategory: #CUBE
+@ObjectModel.representativeKey: 'ContractNo'
+define view entity ZSD_ROLL_OVER_QUANTITY
+  with parameters
+    p_year  : gjahr,
+    p_month : monat
+  as select from    vbak              as _ContractHeader
+    inner join      vbap              as _ContractItem           on _ContractItem.vbeln = _ContractHeader.vbeln
+
+  /* Resolve Sales Orders created from this Contract */
+    left outer join vbak              as _SalesOrderHeader       on  _SalesOrderHeader.vgbel = _ContractItem.vbeln
+                                                                 and _SalesOrderHeader.vbtyp = 'C'
+
+    left outer join vbap              as _SalesOrderItem         on _SalesOrderItem.vbeln = _SalesOrderHeader.vbeln
+
+  /* Sold-to partner at header level: PARVW = 'SP', POSNR = '000000'
+   If your system uses 'AG' for sold-to, change 'SP' -> 'AG'. */
+    left outer join vbpa              as _SalesPartner           on  _SalesPartner.vbeln = _ContractItem.vbeln
+                                                                 and _SalesPartner.parvw = 'AG'
+                                                                 and _SalesPartner.posnr = '000000'
+
+    left outer join adrc              as _Address                on _Address.addrnumber = _SalesPartner.adrnr
+
+    left outer join t005t             as _CountryText            on  _CountryText.land1 = _Address.country
+                                                                 and _CountryText.spras = $session.system_language
+
+    left outer join t023t             as _MaterialGroupText      on  _MaterialGroupText.matkl = _ContractItem.matkl
+                                                                 and _MaterialGroupText.spras = $session.system_language
+
+    left outer join tvtwt             as _OrganizationalUnitText on  _OrganizationalUnitText.vtweg = _ContractHeader.vtweg
+                                                                 and _OrganizationalUnitText.spras = $session.system_language
+
+    left outer join tvsbt             as _ShippingConditionText  on  _ShippingConditionText.vsbed = _ContractHeader.vsbed
+                                                                 and _ShippingConditionText.spras = $session.system_language
+
+  /* Billing aggregated at Sales Order Item level */
+    left outer join ZSD_I_BillingAgg( p_year  : $parameters.p_year, p_month : $parameters.p_month )                 
+                                      as _BillAgg                on  _BillAgg.SalesOrderNo   = _SalesOrderItem.vbeln
+                                                                 and _BillAgg.SalesOrderItem = _SalesOrderItem.posnr
+
+  /* Delivery aggregated at Sales Order Item level */
+    left outer join ZSD_I_DeliveryAgg as _DeliveryAgg            on  _DeliveryAgg.SalesOrderNo   = _SalesOrderItem.vbeln
+                                                                 and _DeliveryAgg.SalesOrderItem = _SalesOrderItem.posnr
+{
+      /* ===============================
+         Keys (CONTRACT ITEM)
+         =============================== */
+  key _ContractItem.vbeln                                                  as ContractNo,
+  key _ContractItem.posnr                                                  as ContractItemNo,
+
+      /* ===============================
+         Contract header info
+         =============================== */
+      _ContractHeader.audat                                                as ContractDate,
+      substring( _ContractHeader.audat, 1, 4 )                             as ContractYear,
+      substring( _ContractHeader.audat, 5, 2 )                             as ContractMonth,
+
+      _ContractItem.matkl                                                  as ProductCategory,
+      _MaterialGroupText.wgbez                                             as ProductCategorgyDesc,
+
+      _ContractHeader.vtweg                                                as TypeOfSales,
+      _OrganizationalUnitText.vtext                                        as TypeOfSalesDesc,
+
+      _Address.addrnumber                                                  as SoldToParty,
+      @EndUserText.label: 'Sold-to Party Name'
+      _Address.name1                                                       as SoldToPartyName,
+
+      _Address.country                                                     as Destination,
+      _CountryText.landx                                                   as DestinationDesc,
+
+      _ContractHeader.vsbed                                                as ShippingType,
+      _ShippingConditionText.vtext                                         as ShippingTypeDesc,
+
+      /* ===============================
+         Contract Quantity (SOURCE OF TRUTH)
+         =============================== */
+      @Semantics.quantity.unitOfMeasure: 'ContractUnit'
+      cast( _ContractItem.zmeng as abap.dec(15,3) )                        as ContractQty,
+      _ContractItem.zieme                                                  as ContractUnit,
+
+      /* ===============================
+         Billing quantities (ROLLED UP)
+         =============================== */
+      cast( coalesce( _BillAgg.PrevMonthSales, 0 ) as abap.dec(15,3) )     as PrevMonthSales,
+      cast( coalesce( _BillAgg.CurrMonthSales, 0 ) as abap.dec(15,3) )     as CurrMonthSales,
+      cast( coalesce( _BillAgg.TotalBilledQty, 0 ) as abap.dec(15,3) )     as TotalBilledQty,
+
+      /* ===============================
+         Balance to Bill Quantity
+         =============================== */
+      @Semantics.quantity.unitOfMeasure: 'ContractUnit'
+      cast( _ContractItem.zmeng as abap.dec(15,3) )
+        - cast( coalesce( _BillAgg.TotalBilledQty, 0 ) as abap.dec(15,3) ) as BalanceBillQty,
+
+      /* ===============================
+         Rollover Quantity
+         =============================== */
+      @Semantics.quantity.unitOfMeasure: 'ContractUnit'
+      cast( _ContractItem.zmeng as abap.dec(15,3) )
+        - cast( coalesce( _BillAgg.PrevMonthSales, 0 ) as abap.dec(15,3) ) as RolloverQty,
+
+      cast( '99991231' as abap.dats)                                       as LCLastDueDate,
+
+      /* ===============================
+         Last Shipped Date
+         =============================== */
+      _DeliveryAgg.LastShippedDate
+}
+where
+      _ContractHeader.vbtyp = 'G'
+  and _ContractHeader.audat >= cast( concat( concat( $parameters.p_year, $parameters.p_month) , '01' ) as abap.dats )
+  and _ContractHeader.audat < DATS_ADD_MONTHS(
+                               cast( concat( concat( $parameters.p_year, $parameters.p_month) , '01' ) as abap.dats ),
+                               1,
+                               'INITIAL'
+                              );

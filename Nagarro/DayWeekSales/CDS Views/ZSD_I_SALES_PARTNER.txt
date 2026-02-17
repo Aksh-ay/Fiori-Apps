@@ -1,0 +1,16 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Sales Partner View'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZSD_I_SALES_PARTNER
+  as select from vbpa
+{
+  key vbeln as ContractNo,
+      max( case when parvw = 'AG' then adrnr end ) as SoldToParty,
+      max( case when parvw = 'WE' then adrnr end ) as ShipToParty
+}
+where
+     parvw = 'AG'
+  or parvw = 'WE'
+group by
+  vbeln;

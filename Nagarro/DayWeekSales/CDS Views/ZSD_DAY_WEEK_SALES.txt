@@ -1,0 +1,84 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Day Week wise Sales View'
+@Metadata.ignorePropagatedAnnotations: true
+@VDM.viewType: #CONSUMPTION
+@OData.publish: true
+@Analytics.dataCategory: #CUBE
+@ObjectModel.representativeKey: 'ContractNo'
+define view entity ZSD_DAY_WEEK_SALES
+  with parameters
+    p_start_date : char8,
+    p_end_date   : char8
+  as select from    vbak                as _ContractHeader
+    inner join      vbap                as _ContractItem      on _ContractItem.vbeln = _ContractHeader.vbeln
+
+  /* Resolve Sales Orders created from this Contract */
+    left outer join vbak                as _SalesOrderHeader  on  _SalesOrderHeader.vgbel = _ContractItem.vbeln
+                                                              and _SalesOrderHeader.vbtyp = 'C'
+
+    left outer join vbap                as _SalesOrderItem    on _SalesOrderItem.vbeln = _SalesOrderHeader.vbeln
+
+    left outer join vbrp                as _BillingItem       on  _BillingItem.aubel = _SalesOrderItem.vbeln
+                                                              and _BillingItem.aupos = _SalesOrderItem.posnr
+
+    left outer join vbrk                as _BillingHeader     on _BillingHeader.vbeln = _BillingItem.vbeln
+
+    left outer join ZSD_I_SALES_PARTNER as _SalesPartner      on _SalesPartner.ContractNo = _ContractItem.vbeln
+
+
+    left outer join adrc                as _Address           on _Address.addrnumber = _SalesPartner.ShipToParty
+
+    left outer join t023t               as _MaterialGroupText on  _MaterialGroupText.matkl = _ContractItem.matkl
+                                                              and _MaterialGroupText.spras = $session.system_language
+{
+      /* ===============================
+         Keys (CONTRACT ITEM)
+         =============================== */
+  key _ContractItem.vbeln                           as ContractNo,
+      _SalesOrderItem.vbeln                         as SalesOrderNo,
+
+      /* ===============================
+         Bill DateTime info
+         =============================== */
+      substring( _BillingHeader.fkdat, 1, 4 )       as BillingYear,
+      substring( _BillingHeader.fkdat, 5, 2 )       as BillingMonth,
+      _BillingHeader.fkdat                          as BillDate,
+
+      _ContractItem.matkl                           as ProductCategory,
+      _MaterialGroupText.wgbez                      as ProductCategoryDesc,
+
+      _SalesPartner.SoldToParty                     as SoldToParty,
+      _SalesPartner.ShipToParty                     as ShipToParty,
+      _Address.name1                                as ShipToPartyName,
+
+      cast( 'USD' as abap.cuky )                    as USD_Currency,
+
+      /* ===============================
+        Quantity Fields
+        =============================== */
+      @Semantics.amount.currencyCode: 'USD_Currency'
+      sum( currency_conversion(
+      amount => _BillingHeader.netwr,
+      source_currency => _BillingHeader.waerk,
+      target_currency => cast( 'USD' as abap.cuky ),
+      exchange_rate_date => _BillingHeader.fkdat) ) as USDWtPrice,
+
+      _BillingItem.vrkme                            as BillingUnit,
+      @Semantics.quantity.unitOfMeasure: 'BillingUnit'
+      sum( _BillingItem.fkimg )                     as SumOfQuantity
+}
+where
+      _ContractHeader.vbtyp = 'G'
+  and _BillingHeader.fkdat  >= $parameters.p_start_date
+  and _BillingHeader.fkdat  <= $parameters.p_end_date
+group by
+  _ContractItem.vbeln,
+  _SalesOrderItem.vbeln,
+  _BillingHeader.fkdat,
+  _ContractItem.matkl,
+  _MaterialGroupText.wgbez,
+  _SalesPartner.SoldToParty,
+  _SalesPartner.ShipToParty,
+  _Address.name1,
+  _BillingItem.vrkme;

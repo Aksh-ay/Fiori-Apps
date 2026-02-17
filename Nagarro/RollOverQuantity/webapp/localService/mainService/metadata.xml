@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="CodeList"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Measures.V1" Alias="Measures"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://jsisocd190:44300/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Validation.V1" Alias="Validation"/>
+    </edmx:Reference>
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZSD_ROLL_OVER_QUANTITY_CDS" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <EntityType Name="ZSD_ROLL_OVER_QUANTITYType" sap:label="Roll Over Quantity View" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="p_year"/>
+                    <PropertyRef Name="p_month"/>
+                    <PropertyRef Name="ContractNo"/>
+                    <PropertyRef Name="ContractItemNo"/>
+                </Key>
+                <Property Name="p_year" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="NonNegative" sap:label="Fiscal Year"/>
+                <Property Name="p_month" Type="Edm.String" Nullable="false" MaxLength="2" sap:display-format="NonNegative" sap:label="Posting period"/>
+                <Property Name="ContractNo" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:label="Sales document" sap:quickinfo="Sales Document"/>
+                <Property Name="ContractItemNo" Type="Edm.String" Nullable="false" MaxLength="6" sap:display-format="NonNegative" sap:label="Sales Document Item"/>
+                <Property Name="ContractDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Document Date" sap:quickinfo="Document Date (Date Received/Sent)"/>
+                <Property Name="ContractYear" Type="Edm.String" MaxLength="4"/>
+                <Property Name="ContractMonth" Type="Edm.String" MaxLength="2"/>
+                <Property Name="ProductCategory" Type="Edm.String" MaxLength="9" sap:display-format="UpperCase" sap:label="Material Group"/>
+                <Property Name="ProductCategorgyDesc" Type="Edm.String" MaxLength="20" sap:label="Material Group Desc." sap:quickinfo="Material Group Description"/>
+                <Property Name="TypeOfSales" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Distribution Channel"/>
+                <Property Name="TypeOfSalesDesc" Type="Edm.String" MaxLength="20" sap:label="Name"/>
+                <Property Name="SoldToParty" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Address Number"/>
+                <Property Name="SoldToPartyName" Type="Edm.String" MaxLength="40" sap:label="Sold-to Party Name" sap:quickinfo="Name 1"/>
+                <Property Name="Destination" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Country/Region Key"/>
+                <Property Name="DestinationDesc" Type="Edm.String" MaxLength="15" sap:label="Country/Region Name" sap:quickinfo="Name of Country/Region (Short)"/>
+                <Property Name="ShippingType" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Shipping Conditions"/>
+                <Property Name="ShippingTypeDesc" Type="Edm.String" MaxLength="20" sap:label="Description" sap:quickinfo="Shipping Conditions Description"/>
+                <Property Name="ContractQty" Type="Edm.Decimal" Precision="15" Scale="3" sap:unit="ContractQtyUoM"/>
+                <Property Name="ContractQtyUoM" Type="Edm.String" MaxLength="3" sap:label="Target Quantity UoM" sap:semantics="unit-of-measure"/>
+                <Property Name="PrevMonthSales" Type="Edm.Decimal" Precision="15" Scale="3"/>
+                <Property Name="CurrMonthSales" Type="Edm.Decimal" Precision="15" Scale="3"/>
+                <Property Name="TotalBilledQty" Type="Edm.Decimal" Precision="15" Scale="3"/>
+                <Property Name="BalanceBillQty" Type="Edm.Decimal" Precision="16" Scale="3" sap:unit="ContractQtyUoM"/>
+                <Property Name="RolloverQty" Type="Edm.Decimal" Precision="16" Scale="3" sap:unit="ContractQtyUoM"/>
+                <Property Name="LCLastDueDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date"/>
+                <Property Name="LastShippedDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date"/>
+                <NavigationProperty Name="Parameters" Relationship="ZSD_ROLL_OVER_QUANTITY_CDS.assoc_6AC9292D50493174B9024168E20C9040" FromRole="ToRole_assoc_6AC9292D50493174B9024168E20C9040" ToRole="FromRole_assoc_6AC9292D50493174B9024168E20C9040" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="ZSD_ROLL_OVER_QUANTITYParameters" sap:semantics="parameters" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="p_year"/>
+                    <PropertyRef Name="p_month"/>
+                </Key>
+                <Property Name="p_year" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="NonNegative" sap:parameter="mandatory" sap:label="Fiscal Year" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="p_month" Type="Edm.String" Nullable="false" MaxLength="2" sap:display-format="NonNegative" sap:parameter="mandatory" sap:label="Posting period" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="Set" Relationship="ZSD_ROLL_OVER_QUANTITY_CDS.assoc_6AC9292D50493174B9024168E20C9040" FromRole="FromRole_assoc_6AC9292D50493174B9024168E20C9040" ToRole="ToRole_assoc_6AC9292D50493174B9024168E20C9040"/>
+            </EntityType>
+            <Association Name="assoc_6AC9292D50493174B9024168E20C9040" sap:content-version="1">
+                <End Type="ZSD_ROLL_OVER_QUANTITY_CDS.ZSD_ROLL_OVER_QUANTITYParameters" Multiplicity="1" Role="FromRole_assoc_6AC9292D50493174B9024168E20C9040"/>
+                <End Type="ZSD_ROLL_OVER_QUANTITY_CDS.ZSD_ROLL_OVER_QUANTITYType" Multiplicity="*" Role="ToRole_assoc_6AC9292D50493174B9024168E20C9040"/>
+            </Association>
+            <EntityContainer Name="ZSD_ROLL_OVER_QUANTITY_CDS_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="ZSD_ROLL_OVER_QUANTITYSet" EntityType="ZSD_ROLL_OVER_QUANTITY_CDS.ZSD_ROLL_OVER_QUANTITYType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="ZSD_ROLL_OVER_QUANTITY" EntityType="ZSD_ROLL_OVER_QUANTITY_CDS.ZSD_ROLL_OVER_QUANTITYParameters" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <AssociationSet Name="assoc_6AC9292D50493174B9024168E20C9040" Association="ZSD_ROLL_OVER_QUANTITY_CDS.assoc_6AC9292D50493174B9024168E20C9040" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ZSD_ROLL_OVER_QUANTITY" Role="FromRole_assoc_6AC9292D50493174B9024168E20C9040"/>
+                    <End EntitySet="ZSD_ROLL_OVER_QUANTITYSet" Role="ToRole_assoc_6AC9292D50493174B9024168E20C9040"/>
+                </AssociationSet>
+            </EntityContainer>
+            <Annotations Target="ZSD_ROLL_OVER_QUANTITY_CDS.ZSD_ROLL_OVER_QUANTITY_CDS_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+            </Annotations>
+            <Annotations Target="ZSD_ROLL_OVER_QUANTITY_CDS.ZSD_ROLL_OVER_QUANTITY_CDS_Entities/ZSD_ROLL_OVER_QUANTITY" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonFilterableProperties">
+                            <Collection>
+                                <PropertyPath>p_year</PropertyPath>
+                                <PropertyPath>p_month</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.NavigationRestrictions">
+                    <Record>
+                        <PropertyValue Property="RestrictedProperties">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="Parameters"/>
+                                    <PropertyValue Property="FilterRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Filterable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.SortRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonSortableProperties">
+                            <Collection>
+                                <PropertyPath>p_year</PropertyPath>
+                                <PropertyPath>p_month</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <atom:link rel="self" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_ROLL_OVER_QUANTITY_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_ROLL_OVER_QUANTITY_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

@@ -1,0 +1,24 @@
+
+<mvc:View controllerName="zsd_rollovr_qty.controller.Main"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:table="sap.ui.table">
+    <Page>
+        <customHeader>
+            <Toolbar>
+                <!-- <Image src="images/jindal.png" width="40px" height="40px" /> -->
+                <ToolbarSpacer />
+                <Title text="Roll Over Quantity" level="H1" class="sapUiTinyMarginBegin" />
+                <ToolbarSpacer />
+            </Toolbar>
+        </customHeader>
+        <content>
+            <mvc:XMLView
+                id="zsd_rollovr_qtyView"
+                viewName="zsd_rollovr_qty.view.RollOverQuantity"
+                displayBlock="true" />
+        </content>
+    </Page>
+</mvc:View>
