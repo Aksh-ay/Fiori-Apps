@@ -1,0 +1,415 @@
+<mvc:View controllerName="zsd_bal_ord_qty.controller.BalanceOrderQuantity"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:table="sap.ui.table">
+    <App id="Overview">
+        <pages>
+            <Page id="overviewPage" showHeader="true" showFooter="false" class="sapUiNoContentPadding">
+             <customHeader>
+            <Toolbar>
+                <!-- <Image src="images/jindal.png" width="40px" height="40px" /> -->
+                <ToolbarSpacer />
+                <Title text="Balance Order Quantity" level="H1" class="sapUiTinyMarginBegin" />
+                <ToolbarSpacer />
+            </Toolbar>
+        </customHeader>
+                <layout:DynamicSideContent id="dsc" sideContentPosition="Begin" sideContentVisibility="{= ${device>/system/phone} ? 'ShowAbove' : 'AlwaysShow'}" showSideContent="true">
+                    <!-- ========== LEFT: FILTERS ========== -->
+                    <layout:sideContent>
+                        <VBox class="sapUiTinyMargin" fitContainer="true" renderType="Bare">
+                            <Toolbar>
+                                <Title text="Filters" />
+                                <ToolbarSpacer />
+                                <Button id="btnToggleSide" text="Hide" type="Transparent" icon="sap-icon://menu2" press=".onToggleSideContent" />
+                            </Toolbar>
+                            <ScrollContainer height="75%" vertical="true" horizontal="false" class="sapUiTinyMarginTop">
+                                <VBox renderType="Bare">
+                                    <!-- Year & Month -->
+                                    <HBox>
+                                        <Label text=" Year and Month" width="8rem"/>
+                                        <DatePicker id="fMonthYear" value="{'path': 'oFilterModel>/MonthYear',
+                                                                            'type': 'sap.ui.model.type.Date',
+                                                                            'formatOptions': {
+                                                                            'pattern': 'MM-y'}}" change=".onMonthYearChange"/>
+                                    </HBox>
+                                    <!-- Contract No -->
+                                    <HBox>
+                                        <Label text="Contract No" width="8rem"/>
+                                        <MultiInput placeholder="Contract No" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="ContractNo"/>
+                                                <core:CustomData key="label" value="Contract No"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>ContractNo}" text="{oTableModel>ContractNo}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Sales Order No -->
+                                    <HBox>
+                                        <Label text="Sales Order No" width="8rem"/>
+                                        <MultiInput placeholder="Sales Order No" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="SalesOrderNo"/>
+                                                <core:CustomData key="label" value="Sales Order No"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>SalesOrderNo}" text="{oTableModel>SalesOrderNo}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Sold-to Party No -->
+                                    <HBox>
+                                        <Label text="Sold-to Party No" width="8rem"/>
+                                        <MultiInput placeholder="Sold-to Party No" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="SoldToParty"/>
+                                                <core:CustomData key="label" value="Sold-to Party No"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>SoldToParty}" text="{oTableModel>SoldToParty}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Ship-to Party Name -->
+                                    <HBox>
+                                        <Label text="Ship-to Party Nam" width="8rem"/>
+                                        <MultiInput placeholder="Ship-to Party Nam" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="ShipToPartyName"/>
+                                                <core:CustomData key="label" value="Ship-to Party Nam"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>ShipToPartyName}" text="{oTableModel>ShipToPartyName}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Material No -->
+                                    <HBox>
+                                        <Label text="Material No" width="8rem"/>
+                                        <MultiInput placeholder="Material No" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="MaterialNo"/>
+                                                <core:CustomData key="label" value="Material No"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>MaterialNo}" text="{oTableModel>MaterialNo}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Product Category -->
+                                    <HBox>
+                                        <Label text="Product Category" width="8rem"/>
+                                        <MultiInput placeholder="Product Category" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="ProductCategoryDesc"/>
+                                                <core:CustomData key="label" value="Product Category"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>ProductCategoryDesc}" text="{oTableModel>ProductCategoryDesc}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Company -->
+                                    <HBox>
+                                        <Label text="Company" width="8rem"/>
+                                        <MultiInput placeholder="Company" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="CompanyName"/>
+                                                <core:CustomData key="label" value="Company"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>CompanyName}" text="{oTableModel>CompanyName}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Payment Term -->
+                                    <HBox>
+                                        <Label text="Payment Term" width="8rem"/>
+                                        <MultiInput placeholder="Payment Term" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="PaymentTermText"/>
+                                                <core:CustomData key="label" value="Payment Term"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>PaymentTermText}" text="{oTableModel>PaymentTermText}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Shipping Type -->
+                                    <HBox>
+                                        <Label text="Shipping Type" width="8rem"/>
+                                        <MultiInput placeholder="Shipping Type" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="ShippingTypeDesc"/>
+                                                <core:CustomData key="label" value="Shipping Type"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>ShippingTypeDesc}" text="{oTableModel>ShippingTypeDesc}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- Currency -->
+                                    <HBox>
+                                        <Label text="Currency" width="8rem"/>
+                                        <MultiInput placeholder="Currency" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                            <customData>
+                                                <core:CustomData key="field" value="Currency"/>
+                                                <core:CustomData key="label" value="Currency"/>
+                                            </customData>
+                                            <suggestionItems>
+                                                <core:Item key="{oTableModel>Currency}" text="{oTableModel>Currency}"/>
+                                            </suggestionItems>
+                                        </MultiInput>
+                                    </HBox>
+                                    <!-- SO-Length -->
+                                    <HBox>
+                                        <Label text="SO-Length" width="8rem"/>
+                                        <Select width="4rem" selectedKey="{oFilterModel>/QtyFilters/SOLength/op}" items="{operators>/}">
+                                            <items>
+                                                <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                            </items>
+                                        </Select>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/SOLength/v1',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 2,
+                                                            maxFractionDigits: 2,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/QtyFilters/SOLength/op} === 'BT' ? 'From' : 'Value'}"/>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/SOLength/v2',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 2,
+                                                            maxFractionDigits: 2,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/QtyFilters/SOLength/op} === 'BT'}"/>
+                                    </HBox>
+                                    <!-- Average Basic Price -->
+                                    <HBox>
+                                        <Label text="Average Basic Price" width="8rem"/>
+                                        <Select width="4rem" selectedKey="{oFilterModel>/QtyFilters/AvgBasicPrice/op}" items="{operators>/}">
+                                            <items>
+                                                <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                            </items>
+                                        </Select>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/AvgBasicPrice/v1',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 2,
+                                                            maxFractionDigits: 2,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/QtyFilters/AvgBasicPrice/op} === 'BT' ? 'From' : 'Value'}"/>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/AvgBasicPrice/v2',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 2,
+                                                            maxFractionDigits: 2,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/QtyFilters/AvgBasicPrice/op} === 'BT'}"/>
+                                    </HBox>
+                                    <!-- Contract Quantity -->
+                                    <HBox>
+                                        <Label text="Contract Quantity" width="8rem"/>
+                                        <Select width="4rem" selectedKey="{oFilterModel>/QtyFilters/ContractQty/op}" items="{operators>/}">
+                                            <items>
+                                                <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                            </items>
+                                        </Select>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/ContractQty/v1',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/QtyFilters/ContractQty/op} === 'BT' ? 'From' : 'Value'}"/>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/ContractQty/v2',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/QtyFilters/ContractQty/op} === 'BT'}"/>
+                                    </HBox>
+                                    <!-- Sales Order Quantity -->
+                                    <HBox>
+                                        <Label text="Sales Order Quantity" width="8rem"/>
+                                        <Select width="4rem" selectedKey="{oFilterModel>/QtyFilters/SalesOrderQty/op}" items="{operators>/}">
+                                            <items>
+                                                <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                            </items>
+                                        </Select>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/SalesOrderQty/v1',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/QtyFilters/SalesOrderQty/op} === 'BT' ? 'From' : 'Value'}"/>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/SalesOrderQty/v2',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/QtyFilters/SalesOrderQty/op} === 'BT'}"/>
+                                    </HBox>
+                                    <!-- Total Billed Quantity -->
+                                    <HBox>
+                                        <Label text="Total Billed Qty" width="8rem"/>
+                                        <Select width="4rem" selectedKey="{oFilterModel>/QtyFilters/TotalBilledQty/op}" items="{operators>/}">
+                                            <items>
+                                                <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                            </items>
+                                        </Select>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/TotalBilledQty/v1',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/QtyFilters/TotalBilledQty/op} === 'BT' ? 'From' : 'Value'}"/>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/TotalBilledQty/v2',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/QtyFilters/TotalBilledQty/op} === 'BT'}"/>
+                                    </HBox>
+                                    <!-- Delivery Quantity -->
+                                    <HBox>
+                                        <Label text="Delivery Quantity" width="8rem"/>
+                                        <Select width="4rem" selectedKey="{oFilterModel>/QtyFilters/DeliveryQty/op}" items="{operators>/}">
+                                            <items>
+                                                <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                            </items>
+                                        </Select>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/DeliveryQty/v1',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/QtyFilters/DeliveryQty/op} === 'BT' ? 'From' : 'Value'}"/>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/DeliveryQty/v2',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/QtyFilters/DeliveryQty/op} === 'BT'}"/>
+                                    </HBox>
+                                    <!-- Balance to Bill Quantity -->
+                                    <HBox>
+                                        <Label text="Balance to Bill" width="8rem"/>
+                                        <Select width="4rem" selectedKey="{oFilterModel>/QtyFilters/BalanceBillQty/op}" items="{operators>/}">
+                                            <items>
+                                                <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                            </items>
+                                        </Select>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/BalanceBillQty/v1',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/QtyFilters/BalanceBillQty/op} === 'BT' ? 'From' : 'Value'}"/>
+                                        <ToolbarSpacer width="0.5rem"/>
+                                        <Input  value="{path: 'oFilterModel>/QtyFilters/BalanceBillQty/v2',
+                                                        type: 'sap.ui.model.type.Float',
+                                                        formatOptions: {
+                                                            minFractionDigits: 3,
+                                                            maxFractionDigits: 3,
+                                                            preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/QtyFilters/BalanceBillQty/op} === 'BT'}"/>
+                                    </HBox>
+                                </VBox>
+                            </ScrollContainer>
+                            <!-- Buttons -->
+                            <HBox class="sapUiTinyMarginTop">
+                                <Button text="Apply" press=".onApplyFilters" type="Emphasized" class="sapUiTinyMarginEnd"/>
+                                <Button text="Reset" press=".onResetFilters" />
+                            </HBox>
+                        </VBox>
+                    </layout:sideContent>
+
+                    <!-- ========== RIGHT: MAIN CONTENT ========== -->
+                    <layout:mainContent>
+                        <!-- Remove extra wrappers/margins so there is NO blank space -->
+                        <VBox class="sapUiTinyMargin" fitContainer="true">
+                            <!-- Single toolbar (no ScrollContainer; tiny bottom margin) -->
+                            <OverflowToolbar id="mainToolbar" design="Auto" class="sapUiTinyMarginBottom">
+                                <Button id="btnToggleMain" text="{= ${device>/system/phone} ? '' : 'Filters'}" tooltip="Filters" type="Transparent" icon="sap-icon://menu2" press=".onToggleMainContent">
+                                    <layoutData>
+                                        <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                    </layoutData>
+                                </Button>
+                                <ToolbarSpacer/>
+                                <Button id="btnSync" text="" icon="sap-icon://synchronize" type="Transparent" press=".onSyncTable"/>
+                                <Button id="btnSort" text="{= ${device>/system/phone} ? '' : 'Sort'}" tooltip="Sort" icon="sap-icon://sort" type="Transparent" press=".onOpenSortDialog">
+                                    <layoutData>
+                                        <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                    </layoutData>
+                                </Button>
+                                <Button id="btnHide" text="{= ${device>/system/phone} ? '' : 'Hide/Show'}" tooltip="Hide/Show" icon="sap-icon://action-settings" type="Transparent" press=".onOpenColumnSettings">
+                                    <layoutData>
+                                        <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                    </layoutData>
+                                </Button>
+                                <Button id="btnExport" text="{= ${device>/system/phone} ? '' : 'Export to Excel'}" tooltip="Export to Excel" icon="sap-icon://excel-attachment" type="Transparent" press=".onExportExcel">
+                                    <layoutData>
+                                        <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                    </layoutData>
+                                </Button>
+                            </OverflowToolbar>
+                            <ScrollContainer id="tblScroll" horizontal="true" vertical="true" height="80%" focusable="true">
+                                <Table id="idBalOrderQtyTable" sticky="ColumnHeaders" items="{oTableModel>/}">
+                                    <columns>
+                                        <Column width="6rem"><Text text="Year"/></Column>
+                                        <Column width="6rem"><Text text="Month"/></Column>
+                                        <Column width="10rem"><Text text="Contract No"/></Column>
+                                        <Column width="10rem"><Text text="Sales Order No"/></Column>
+                                        <Column width="10rem"><Text text="Sold-to Party No"/></Column>
+                                        <Column width="12rem"><Text text="Ship-to Party Name"/></Column>
+                                        <Column width="12rem"><Text text="Material No"/></Column>
+                                        <Column width="6rem"><Text text="SO-Length"/></Column>
+                                        <Column width="8rem"><Text text="Avg Basic Price"/></Column>
+                                        <Column width="8rem"><Text text="Currency"/></Column>
+                                        <Column width="8rem"><Text text="Contract Qty"/></Column>
+                                        <Column width="8rem"><Text text="Sales Order Qty"/></Column>
+                                        <Column width="8rem"><Text text="Total Billed Qty"/></Column>
+                                        <Column width="8rem"><Text text="Delivery Qty"/></Column>
+                                        <Column width="10rem"><Text text="Balance to Bill Qty"/></Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem vAlign="Middle">
+                                            <cells>
+                                                <Text text="{oTableModel>ContractYear}"/>
+                                                <Text text="{oTableModel>ContractMonth}"/>
+                                                <Text text="{oTableModel>ContractNo}"/>
+                                                <Text text="{oTableModel>SalesOrderNo}"/>
+                                                <Text text="{oTableModel>SoldToParty}"/>
+                                                <Text text="{oTableModel>ShipToPartyName}"/>
+                                                <Text text="{oTableModel>MaterialNo}"/>
+                                                <Text text="{oTableModel>SOLength}"/>
+                                                <Text text="{path:'oTableModel>AvgBasicPrice', formatter: '.formatShortCurrency'}" tooltip="{ path: 'oTableModel>AvgBasicPrice', formatter: '.formatFullCurrency'}"/>
+                                                <Text text="{oTableModel>Currency}"/>
+                                                <Text text="{path:'oTableModel>ContractQty', formatter: '.formatShortNumber'}" tooltip="{ path: 'oTableModel>ContractQty', formatter: '.formatFullNumber'}"/>  
+                                                <Text text="{path:'oTableModel>SalesOrderQty', formatter: '.formatShortNumber'}" tooltip="{ path: 'oTableModel>SalesOrderQty', formatter: '.formatFullNumber'}"/>  
+                                                <Text text="{path:'oTableModel>TotalBilledQty', formatter: '.formatShortNumber'}" tooltip="{ path: 'oTableModel>TotalBilledQty', formatter: '.formatFullNumber'}"/>  
+                                                <Text text="{path:'oTableModel>DeliveryQty', formatter: '.formatShortNumber'}" tooltip="{ path: 'oTableModel>DeliveryQty', formatter: '.formatFullNumber'}"/>  
+                                                <Text text="{path:'oTableModel>BalanceBillQty', formatter: '.formatShortNumber'}" tooltip="{ path: 'oTableModel>BalanceBillQty', formatter: '.formatFullNumber'}"/>  
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </ScrollContainer>
+                        </VBox>
+                    </layout:mainContent>
+                </layout:DynamicSideContent>
+            </Page>
+        </pages>
+    </App>
+</mvc:View>

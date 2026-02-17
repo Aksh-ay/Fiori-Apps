@@ -1,0 +1,26 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Pricing conditions Sales View'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZSD_I_PRICING
+  as select from prcd_elements
+{
+  key knumv,
+
+      cast(
+        sum(
+          cast( kwert as abap.dec( 15, 2 ) )
+        )
+        as abap.dec( 15, 2 )
+      ) as PricingValue
+}
+where
+     kschl = 'ZPR0'
+  or kschl = 'ZEXS'
+  or kschl = 'ZPFE'
+  or kschl = 'ZPMO'
+  or kschl = 'ZGRE'
+  or kschl = 'ZSMS'
+  or kschl = 'ZUBR'
+group by
+  knumv;

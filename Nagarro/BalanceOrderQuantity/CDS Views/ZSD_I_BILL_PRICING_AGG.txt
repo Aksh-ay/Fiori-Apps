@@ -1,0 +1,45 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Billing and Priced Elements Aggregation'
+@Metadata.ignorePropagatedAnnotations: true
+define view entity ZSD_I_BILL_PRICING_AGG
+  with parameters
+    p_year  : gjahr,
+    p_month : monat
+  as select from    vbrp          as _BillingItem
+    inner join      vbrk          as _BillingHeader on _BillingHeader.vbeln = _BillingItem.vbeln
+    left outer join ZSD_I_PRICING as _PricingAgg    on _PricingAgg.knumv = _BillingHeader.knumv
+{
+      /* ===============================
+         Sales Order Number
+         =============================== */
+  key _BillingItem.vbeln                           as BillingDocNo,
+  key _BillingItem.posnr                           as BillinItemNo,
+      _BillingItem.aubel                           as SalesOrderNo,
+      _BillingItem.aupos                           as SalesItemNo,
+      _BillingHeader.bukrs                         as CompanyCode,
+      _BillingHeader.zterm                         as PaymentTerm,
+      _BillingHeader.waerk                         as Currency,
+      _BillingItem.vrkme                           as BillingUnit,
+
+      /* Pricing */
+      case
+      when _BillingHeader.waerk = 'OMR'
+      then cast( _PricingAgg.PricingValue / 10 as abap.dec( 15, 2 ) )
+      else _PricingAgg.PricingValue 
+      end                                          as BasicValue,
+
+      /* ===============================
+         Billed Quantity
+         (up to current execution month)
+         =============================== */
+      @Semantics.quantity.unitOfMeasure: 'BillingUnit'
+      cast( _BillingItem.fkimg as abap.dec(15,3) ) as BilledQtyUptoMonth
+}
+where
+      _BillingItem.aubel   is not null
+  and _BillingHeader.fkdat < DATS_ADD_MONTHS(
+                               cast( concat( concat( $parameters.p_year, $parameters.p_month ), '01') as abap.dats ),
+                               1,
+                               'INITIAL'
+                             );

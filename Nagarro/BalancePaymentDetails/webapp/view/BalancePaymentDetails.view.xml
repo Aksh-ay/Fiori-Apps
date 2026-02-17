@@ -1,0 +1,202 @@
+<mvc:View controllerName="zbalancepaymentdetails.controller.BalancePaymentDetails"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout">
+    <Page id="page" showFooter="false" class="sapUiNoContentPadding">
+        <customHeader>
+            <Toolbar>
+                <!-- <Image src="images/jindal.png" width="40px" height="40px" /> -->
+                <ToolbarSpacer />
+                    <Title text="Balance Payment Details" level="H1" class="sapUiTinyMarginBegin" />
+                <ToolbarSpacer />
+            </Toolbar>
+        </customHeader>
+        <layout:DynamicSideContent id="dsc" sideContentPosition="Begin" sideContentVisibility="{= ${device>/system/phone} ? 'ShowAbove' : 'AlwaysShow'}" showSideContent="true">
+            <!-- ========== LEFT: FILTERS ========== -->
+            <layout:sideContent>
+                <VBox class="sapUiTinyMargin" fitContainer="true" renderType="Bare">
+                    <Toolbar>
+                        <Title text="Filters" />
+                        <ToolbarSpacer />
+                        <Button id="btnToggleSide" text="Hide" type="Transparent" icon="sap-icon://menu2" press=".onToggleSideContent" />
+                    </Toolbar>
+                    <VBox renderType="Bare">
+                        <!-- Year & Month -->
+                        <HBox>
+                            <Label text=" Year and Month" width="8rem"/>
+                            <DatePicker id="fMonthYear" value="{'path': 'oFilterModel>/MonthYear',
+                                                                'type': 'sap.ui.model.type.Date',
+                                                                'formatOptions': {
+                                                                'pattern': 'MM-y'}}" change=".onMonthYearChange"/>
+                        </HBox>
+                        <!-- Customer Code -->
+                        <HBox>
+                            <Label text="Customer Code" width="8rem"/>
+                            <MultiInput placeholder="Customer Code" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                <customData>
+                                    <core:CustomData key="field" value="CustomerCode"/>
+                                    <core:CustomData key="label" value="Customer Code"/>
+                                </customData>
+                                <suggestionItems>
+                                    <core:Item key="{oTableModel>CustomerCode}" text="{oTableModel>CustomerCode}"/>
+                                </suggestionItems>
+                            </MultiInput>
+                        </HBox>
+                        <!-- Customer Name -->
+                        <HBox>
+                            <Label text="Customer Name" width="8rem"/>
+                            <MultiInput placeholder="Customer Name" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                <customData>
+                                    <core:CustomData key="field" value="CustomerName"/>
+                                    <core:CustomData key="label" value="Customer Name"/>
+                                </customData>
+                                <suggestionItems>
+                                    <core:Item key="{oTableModel>CustomerName}" text="{oTableModel>CustomerName}"/>
+                                </suggestionItems>
+                            </MultiInput>
+                        </HBox>
+                        <!-- Company Code -->
+                        <HBox>
+                            <Label text="Company Code" width="8rem"/>
+                            <MultiInput placeholder="Company Code" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                <customData>
+                                    <core:CustomData key="field" value="CompanyCode"/>
+                                    <core:CustomData key="label" value="Company Code"/>
+                                </customData>
+                                <suggestionItems>
+                                    <core:Item key="{oTableModel>CompanyCode}" text="{oTableModel>CompanyCode}"/>
+                                </suggestionItems>
+                            </MultiInput>
+                        </HBox>
+                        <!-- Net Balance (Debit/Credit) -->
+                        <HBox>
+                            <Label text="Net Balance (Debit/Credit)" width="8rem"/>
+                            <MultiInput placeholder="Net Balance Indicator" showValueHelp="true" valueHelpRequest=".onGenericValueHelp" suggestionItems="{oTableModel>/}" width="13rem">
+                                <customData>
+                                    <core:CustomData key="field" value="NetBalanceIndicator"/>
+                                    <core:CustomData key="label" value="Net Balance (Debit/Credit)"/>
+                                </customData>
+                                <suggestionItems>
+                                    <core:Item key="{oTableModel>NetBalanceIndicator}" text="{oTableModel>NetBalanceIndicator}"/>
+                                </suggestionItems>
+                            </MultiInput>
+                        </HBox>
+                         <!-- Net Balance Amount (Advance amount) -->
+                        <HBox visible="{toggleNetBalance>/visible}">
+                            <Label text="Net Balance Amount (Advance amount)" width="8rem"/>
+                            <Select width="4rem" selectedKey="{oFilterModel>/AmountFilters/AdvanceAmount/op}" items="{operators>/}">
+                                <items>
+                                    <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                </items>
+                            </Select>
+                            <ToolbarSpacer width="0.5rem"/>
+                            <Input  value="{path: 'oFilterModel>/AmountFilters/AdvanceAmount/v1',
+                                            type: 'sap.ui.model.type.Float',
+                                            formatOptions: {
+                                                minFractionDigits: 3,
+                                                maxFractionDigits: 3,
+                                                preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/AmountFilters/AdvanceAmount/op} === 'BT' ? 'From' : 'Value'}"/>
+                            <ToolbarSpacer width="0.5rem"/>
+                            <Input  value="{path: 'oFilterModel>/AmountFilters/AdvanceAmount/v2',
+                                            type: 'sap.ui.model.type.Float',
+                                            formatOptions: {
+                                                minFractionDigits: 3,
+                                                maxFractionDigits: 3,
+                                                preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/AmountFilters/AdvanceAmount/op} === 'BT'}"/>
+                        </HBox>
+                         <!-- Net Balance Amount (LC) -->
+                        <HBox visible="{= !${toggleNetBalance>/visible}}">
+                            <Label text="Net Balance Amount (LC)" width="8rem"/>
+                            <Select width="4rem" selectedKey="{oFilterModel>/AmountFilters/LCAmount/op}" items="{operators>/}">
+                                <items>
+                                    <core:Item key="{operators>Key}" text="{operators>Text}" /> 
+                                </items>
+                            </Select>
+                            <ToolbarSpacer width="0.5rem"/>
+                            <Input  value="{path: 'oFilterModel>/AmountFilters/LCAmount/v1',
+                                            type: 'sap.ui.model.type.Float',
+                                            formatOptions: {
+                                                minFractionDigits: 3,
+                                                maxFractionDigits: 3,
+                                                preserveDecimals: false}}" width="4rem" placeholder="{= ${oFilterModel>/AmountFilters/LCAmount/op} === 'BT' ? 'From' : 'Value'}"/>
+                            <ToolbarSpacer width="0.5rem"/>
+                            <Input  value="{path: 'oFilterModel>/AmountFilters/LCAmount/v2',
+                                            type: 'sap.ui.model.type.Float',
+                                            formatOptions: {
+                                                minFractionDigits: 3,
+                                                maxFractionDigits: 3,
+                                                preserveDecimals: false}}" width="4rem" placeholder="To" visible="{= ${oFilterModel>/AmountFilters/LCAmount/op} === 'BT'}"/>
+                        </HBox>   
+                    </VBox>
+                    <!-- Buttons -->
+                    <HBox class="sapUiTinyMarginTop">
+                        <Button text="Apply" press=".onApplyFilters" type="Emphasized" class="sapUiTinyMarginEnd"/>
+                        <Button text="Reset" press=".onResetFilters" />
+                    </HBox>
+                </VBox>
+            </layout:sideContent>
+
+            <!-- ========== RIGHT: MAIN CONTENT ========== -->
+            <layout:mainContent>
+                <!-- Remove extra wrappers/margins so there is NO blank space -->
+                <VBox class="sapUiTinyMargin" fitContainer="true">
+                    <!-- Single toolbar (no ScrollContainer; tiny bottom margin) -->
+                    <OverflowToolbar id="mainToolbar" design="Auto" class="sapUiTinyMarginBottom">
+                        <Button id="btnToggleMain" text="{= ${device>/system/phone} ? '' : 'Filters'}" tooltip="Filters" type="Transparent" icon="sap-icon://menu2" press=".onToggleMainContent">
+                            <layoutData>
+                                <OverflowToolbarLayoutData priority="NeverOverflow" />
+                            </layoutData>
+                        </Button>
+                        <ToolbarSpacer/>
+                        <Button id="btnSync" text="" icon="sap-icon://synchronize" type="Transparent" press=".onSynchronize"/>
+                        <Button id="btnToggleNetBalance" icon="sap-icon://switch-views" type="Transparent" press=".onToggleNetBalance"/>
+                        <Button id="btnSort" text="{= ${device>/system/phone} ? '' : 'Sort'}" tooltip="Sort" icon="sap-icon://sort" type="Transparent" press=".onOpenSortDialog">
+                            <layoutData>
+                                <OverflowToolbarLayoutData priority="NeverOverflow" />
+                            </layoutData>
+                        </Button>
+                        <Button id="btnHide" text="{= ${device>/system/phone} ? '' : 'Hide/Show'}" tooltip="Hide/Show" icon="sap-icon://action-settings" type="Transparent" press=".onOpenColumnSettings">
+                            <layoutData>
+                                <OverflowToolbarLayoutData priority="NeverOverflow" />
+                            </layoutData>
+                        </Button>
+                        <Button id="btnExport" text="{= ${device>/system/phone} ? '' : 'Export to Excel'}" tooltip="Export to Excel" icon="sap-icon://excel-attachment" type="Transparent" press=".onExportExcel">
+                            <layoutData>
+                                <OverflowToolbarLayoutData priority="NeverOverflow" />
+                            </layoutData>
+                        </Button>
+                    </OverflowToolbar>
+                    <ScrollContainer id="tblScroll" horizontal="true" vertical="true" height="80%" focusable="true">
+                        <Table id="idBalancePaymentTable" sticky="ColumnHeaders" items="{oTableModel>/}">
+                            <columns>
+                                <Column width="6rem"><Text text="Year"/></Column>
+                                <Column width="6rem"><Text text="Month"/></Column>
+                                <Column width="12rem"><Text text="Customer Code"/></Column>
+                                <Column width="10rem"><Text text="Company Code"/></Column>
+                                <Column width="10rem"><Text text="Customer Name"/></Column>
+                                <Column width="10rem"><Text text="Net Balance (Debit/Credit)"/></Column>
+                                <Column id = "idNetBalanceAdvanced" width="10rem" visible="{toggleNetBalance>/visible}"><Text text="Net Balance Amount (Advanced Amount)"/></Column>
+                                <Column width="10rem" visible="{= !${toggleNetBalance>/visible}}"><Text text="Net Balance Amount (LC)"/></Column>
+                            </columns>
+                            <items>
+                                <ColumnListItem vAlign="Middle">
+                                    <cells>
+                                        <Text text="{oTableModel>ContractYear}" />
+                                        <Text text="{oTableModel>ContractMonth}" />
+                                        <Text text="{oTableModel>CustomerCode}" />
+                                        <Text text="{oTableModel>CompanyCode}" />
+                                        <Text text="{oTableModel>CustomerName}" />
+                                        <Text text="{oTableModel>NetBalanceIndicator}" />
+                                        <Text text="{path:'oTableModel>NetBalanceAdvancedAmount', formatter: '.formatShortCurrency'}" tooltip="{ path: 'oTableModel>NetBalanceAdvancedAmount', formatter: '.formatFullCurrency'}"/>
+                                        <Text text="{path:'oTableModel>NetBalanceLCAmount', formatter: '.formatShortCurrency'}" tooltip="{ path: 'oTableModel>NetBalanceLCAmount', formatter: '.formatFullCurrency'}"/>
+                                    </cells>
+                                </ColumnListItem>
+                            </items>
+                        </Table>
+                    </ScrollContainer>
+                </VBox>
+            </layout:mainContent>
+        </layout:DynamicSideContent>
+    </Page>
+</mvc:View>

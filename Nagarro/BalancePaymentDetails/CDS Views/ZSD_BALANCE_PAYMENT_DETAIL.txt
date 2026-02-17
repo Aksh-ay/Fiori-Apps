@@ -1,0 +1,76 @@
+@AbapCatalog.viewEnhancementCategory: [#NONE]
+@AccessControl.authorizationCheck: #NOT_REQUIRED
+@EndUserText.label: 'Balance Payment Details Sales View'
+@Metadata.ignorePropagatedAnnotations: true
+@VDM.viewType: #CONSUMPTION
+@OData.publish: true
+@Analytics.dataCategory: #CUBE
+@ObjectModel.representativeKey: 'CustomerCode'
+define view entity ZSD_BALANCE_PAYMENT_DETAIL
+  with parameters
+    p_year  : gjahr,
+    p_month : monat
+  as select from    vbak as _ContractHeader
+    inner join      vbap as _ContractItem     on _ContractItem.vbeln = _ContractHeader.vbeln
+
+  /* Resolve Sales Orders created from this Contract */
+    left outer join vbak as _SalesOrderHeader on  _SalesOrderHeader.vgbel = _ContractItem.vbeln
+                                              and _SalesOrderHeader.vbtyp = 'C'
+
+    left outer join vbap as _SalesOrderItem   on _SalesOrderItem.vbeln = _SalesOrderHeader.vbeln
+
+    left outer join vbrp as _BillingItem      on  _BillingItem.aubel = _SalesOrderItem.vbeln
+                                              and _BillingItem.aupos = _SalesOrderItem.posnr
+
+    left outer join vbrk as _BillingHeader    on _BillingHeader.vbeln = _BillingItem.vbeln
+
+  /* Sold-to partner at header level: PARVW = 'SP', POSNR = '000000'
+ If your system uses 'AG' for sold-to, change 'SP' -> 'AG'. */
+    left outer join vbpa as _SalesPartner     on  _SalesPartner.vbeln = _ContractItem.vbeln
+                                              and _SalesPartner.parvw = 'AG'
+                                              and _SalesPartner.posnr = '000000'
+
+    left outer join adrc as _Address          on _Address.addrnumber = _SalesPartner.adrnr
+
+    left outer join t001 as _CompanyText      on  _CompanyText.bukrs = _BillingHeader.bukrs
+                                              and _CompanyText.spras = $session.system_language
+{
+      /* ===============================
+         Keys (CONTRACT ITEM)
+         =============================== */
+  key _Address.addrnumber                       as CustomerCode,
+      @EndUserText.label: 'Sold-to Party Name'
+      _Address.name1                            as CustomerName,
+
+      /* ===============================
+         Contract DateTime info
+         =============================== */
+      _ContractHeader.audat                     as ContractDate,
+      substring( _ContractHeader.audat, 1, 4 )  as ContractYear,
+      substring( _ContractHeader.audat, 5, 2 )  as ContractMonth,
+
+      coalesce(_BillingHeader.bukrs, 'N/A')     as CompanyCode,
+      coalesce(_CompanyText.butxt, 'N/A')       as CompanyName,
+
+      'Debit'                                   as NetBalanceIndicator,
+      cast( 'USD' as abap.cuky )                as USD_Currency,
+
+      @Semantics.amount.currencyCode: 'USD_Currency'
+      sum( cast( 2200 as abap.curr( 15, 3 ) ) ) as NetBalanceAdvancedAmount,
+      @Semantics.amount.currencyCode: 'USD_Currency'
+      sum (cast( 1100 as abap.curr( 15, 3 ) ) ) as NetBalanceLCAmount
+}
+where
+      _ContractHeader.vbtyp = 'G'
+  and _ContractHeader.audat >= cast( concat( concat( $parameters.p_year, $parameters.p_month) , '01' ) as abap.dats )
+  and _ContractHeader.audat < DATS_ADD_MONTHS(
+                               cast( concat( concat( $parameters.p_year, $parameters.p_month) , '01' ) as abap.dats ),
+                               1,
+                               'INITIAL'
+                              )
+group by
+  _Address.addrnumber,
+  _Address.name1,
+  _ContractHeader.audat,
+  _BillingHeader.bukrs,
+  _CompanyText.butxt;
