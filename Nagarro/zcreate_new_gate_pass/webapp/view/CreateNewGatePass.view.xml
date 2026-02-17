@@ -1,0 +1,230 @@
+<mvc:View
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:uiTable="sap.ui.table"
+    xmlns:layout="sap.ui.layout"
+    xmlns:form="sap.ui.layout.form"
+    controllerName="zcreatenewgatepass.controller.CreateNewGatePass">
+
+    <App>
+        <pages>
+            <Page title="Gate Pass" showHeader="false" class="sapUiContentPadding">
+                <!-- Top toolbar icons (save / delete) -->
+                <content>
+                    <Toolbar>
+                        <Button icon="sap-icon://save" tooltip="Save"/>
+                        <Button icon="sap-icon://delete" tooltip="Delete"/>
+                    </Toolbar>
+
+                    <!-- Main grid: left header + right employee details -->
+                    <layout:Grid defaultSpan="L12 M12 S12" width="100%" hSpacing="1" vSpacing="1">
+                        <!-- Left: Header Details -->
+                        <layout:content>
+                                <Panel headerText="Header Details" expandable="false">
+                                    <layoutData>
+                                        <layout:GridData span="L9 M8 S12"/>
+                                    </layoutData>
+                                    <form:SimpleForm id="headerForm"
+                                        editable="true"
+                                        layout="ResponsiveGridLayout"
+                                        labelSpanL="4" labelSpanM="4" labelSpanS="12"
+                                        adjustLabelSpan="false" 
+                                        columnsL="2" 
+                                        columnsM="2">
+
+                                        <!-- Row 1 -->
+                                        <Label text="GP No"/>
+                                        <Input id="gpNo" width="200px" value="{createGatePass>/gpNo}" editable="false"/>
+                                        <Label text="Plant"/>
+                                        <HBox>
+                                            <Input id="plant" width="80px" value="{createGatePass>/plant}" editable="false"/>
+                                            <Button class="sapUiMediumMarginBegin" text="Party Detail" type="Emphasized" press="onPartyDetail"/>
+                                        </HBox>
+
+                                        <!-- Row 2 -->
+                                        <Label text="GP Date"/>
+                                        <DatePicker id="gpDate" value="{createGatePass>/gpDate}" editable="false"/>
+                                        <Label text="Gate Pass Type"/>
+                                        <Input id="gpType" width="30px" value="{createGatePass>/gpType}" editable="false"/>
+                                       
+                                        <!-- Row 3 -->
+                                        <Label text="PR/PO No."/>
+                                        <Input id="prpoNo" width="220px"/>
+                                        <Label text="Cost Center"/>
+                                        <Input id="costCenter" showValueHelp="true"/>
+                                        <Input id="costCenterText" editable="false"/>
+
+                                        <!-- Row 4 -->
+                                        <Label text="Ref doc No"/>
+                                        <Input id="refDocNo" width="200px"/>
+                                        <Label text="Ref doc yr"/>
+                                        <Input id="refDocYr" width="80px"/>
+
+                                        <!-- Row 5 -->
+                                        <Label text="Mode of Transport" required="true"/>
+                                        <Select id="modeTransportSelect" width="200px">
+                                            <core:Item text="Truck"/>
+                                            <core:Item text="Train"/>
+                                            <core:Item text="Courier"/>
+                                        </Select>
+                                        <Label text="Expected Return Date"/>
+                                        <DatePicker id="expectedReturnDate"/>
+
+                                        <!-- Row 6 -->
+                                        <Label text="Issued To"/>
+                                        <Input id="issuedTo" width="100%"/>
+                                        <Label text=""/>
+
+                                        <!-- Row 7 -->
+                                        <Label text="Vehicle No"/>
+                                        <Input id="vehicleNo" width="300px"/>
+                                        <Label text=""/>
+
+                                        <!-- Row 8 -->
+                                        <Label text="Authorised By"/>
+                                        <Input id="authorisedBy" width="100%"/>
+                                        <Label text="GP Status"/>
+                                        <Input id="gpStatus" enabled="false"/>
+
+                                    </form:SimpleForm>
+                                </Panel>
+
+                            <!-- Right: Employee Details -->
+                                <Panel headerText="Employee Details" expandable="false">
+                                    <layoutData>
+                                        <layout:GridData span="L3 M4 S12"/>
+                                    </layoutData>
+                                    <form:SimpleForm editable="true" layout="ResponsiveGridLayout" labelSpanL="6" labelSpanM="6" labelSpanS="12" columnsL="1" columnsM="1" columnsS="1">
+                                        <Label text="Name" required="true"/>
+                                        <Input id="empName" width="220px"/>
+
+                                        <Label text="Employee Code" required="true"/>
+                                        <Input id="empCode" width="150px"/>
+
+                                        <Label text="Department" required="true"/>
+                                        <Input id="empDept" width="220px"/>
+
+                                        <Label text="Mobile" required="true"/>
+                                        <Input id="empMobile" width="180px"/>
+
+                                        <Label text="Email"/>
+                                        <Input id="empEmail" width="100%"/>
+
+                                        <Label text="HOD Email"/>
+                                        <Input id="empHodEmail" width="100%"/>
+
+                                        <Label text="Email1"/>
+                                        <Input id="empEmail1" width="100%"/>
+                                    </form:SimpleForm>
+                                </Panel>
+                        </layout:content>
+                    </layout:Grid>
+
+                    <!-- Middle: Table + Right small checkbox panel -->
+                    <layout:Grid defaultSpan="L12 M12 S12" width="100%" hSpacing="1" vSpacing="1" style="margin-top:1rem">
+                        <layout:content>
+                            <!-- Left: Table (big) -->
+                                <Panel headerText="Items" expandable="false">
+                                    <layoutData>
+                                        <layout:GridData span="L9 M8 S12"/>
+                                    </layoutData>
+                                    <!-- Using sap.ui.table.Table to get column headers and grid look -->
+                                    <uiTable:Table
+                                        rows="{/ItemCollection}"
+                                        selectionMode="MultiToggle"
+				                        paste="onPaste"
+				                        ariaLabelledBy="title">
+				                        <uiTable:extension>
+					                        <OverflowToolbar style="Clear">
+						                        <Title id="title" text="Items"/>
+					                        </OverflowToolbar>
+				                        </uiTable:extension>
+				                        <uiTable:columns>
+                                            <uiTable:Column width="4rem">
+                                                <Label text="RGP" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="4rem">
+                                                <Label text="Item" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="11rem">
+                                                <Label text="Material" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="22rem">
+                                                <Label text="Description" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="11rem">
+                                                <Label text="Store Qty" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="11rem">
+                                                <Label text="Qty issued" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="4rem">
+                                                <Label text="UOM" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="11rem">
+                                                <Label text="Balance Qty" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="11rem">
+                                                <Label text="Ret. Date" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="11rem">
+                                                <Label text="Ret. qty" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                            <uiTable:Column width="11rem">
+                                                <Label text="Sec Rec Qty" />
+                                                <uiTable:template>
+                                                    <Text text="{Name}" wrapping="false" />
+                                                </uiTable:template>
+                                            </uiTable:Column>
+                                        </uiTable:columns>
+			                        </uiTable:Table>
+                                </Panel>
+
+                            <!-- Right: small Checkbox panel -->
+                                <Panel headerText="Checkbox" expandable="false" height="100%">
+                                    <layoutData>
+                                        <layout:GridData span="L3 M4 S12"/>
+                                    </layoutData>
+                                    <VBox>
+                                        <CheckBox text="Weighment Required" id="chkWeighment"/>
+                                        <CheckBox text="Ready for Delivery(Ok from Stores)" id="chkReadyForDelivery"/>
+                                    </VBox>
+                                </Panel>
+                        </layout:content>
+                    </layout:Grid>
+                </content>
+            </Page>
+        </pages>
+    </App>
+</mvc:View>

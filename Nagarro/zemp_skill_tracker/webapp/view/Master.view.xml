@@ -1,0 +1,53 @@
+<mvc:View
+	controllerName="zempskilltracker.controller.Master"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+	xmlns:smartTable="sap.ui.comp.smarttable"
+	xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+	displayBlock="true"
+	height="100%">
+	<Page id="page" showHeader="false" enableScrolling="true">
+        <VBox height="100%">
+            <smartFilterBar:SmartFilterBar 
+			    id="employeeSmartFilterBar" 
+				entitySet="ZEMP_C_EMPLOYEES" 
+				persistencyKey="ZE026SFPKey" 
+				enableBasicSearch="true"
+				basicSearchFieldName="EmployeeNo"
+				showMessages="true">
+                <!-- layout data used to make the table growing but the filter bar fixed -->
+                <smartFilterBar:layoutData>
+                    <FlexItemData shrinkFactor="0" />
+                </smartFilterBar:layoutData>
+            </smartFilterBar:SmartFilterBar>
+            <smartTable:SmartTable
+                id="employeeSmartTable"
+                entitySet="ZEMP_C_EMPLOYEES"
+                smartFilterId="employeeSmartFilterBar"
+                editable="false"
+				tableType="ResponsiveTable"
+                useVariantManagement="true"
+                useTablePersonalisation="true"
+                header="{i18n>masterTitle}"
+                showRowCount="true"
+                enableAutoBinding="true"
+				enableExport="true"
+				demandPopin="true"
+                showDetailsButton="true"
+                class="sapUiResponsiveContentPadding"
+                app:useSmartToggle="true">
+                <!-- layout data used to make the table growing but the filter bar fixed -->
+                <smartTable:layoutData>
+                    <FlexItemData growFactor="1" baseSize="0%" />
+                </smartTable:layoutData>
+				<Table id="employeeTable" growing="true" growingScrollToLoad="true" growingThreshold="20" itemPress="onItemPress" mode="SingleSelectMaster">
+                    <items>
+                        <ColumnListItem type="Navigation" />
+                    </items>
+                </Table>
+            </smartTable:SmartTable>
+        </VBox>
+    </Page>
+</mvc:View>

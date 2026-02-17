@@ -1,0 +1,138 @@
+{
+  "_version": "1.60.0",
+  "sap.app": {
+    "id": "zempskilltracker",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.19.5",
+      "toolsId": "fc45865b-faf2-409a-ab5a-0f3c031ed879"
+    },
+    "dataSources": {
+      "ZEMP_SKILL_TRACKER_ANNO_MDL_02": {
+        "uri": "/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZEMP_SKILL_TRACKER_ANNO_MDL_02',Version='0001')/$value/",
+        "type": "ODataAnnotation",
+        "settings": {
+          "localUri": "localService/mainService/ZEMP_SKILL_TRACKER_ANNO_MDL_02.xml"
+        }
+      },
+      "mainService": {
+        "uri": "/sap/opu/odata/sap/ZEMP_SKILL_TRACKER_SRV_02/",
+        "type": "OData",
+        "settings": {
+          "annotations": [
+            "ZEMP_SKILL_TRACKER_ANNO_MDL_02"
+          ],
+          "localUri": "localService/mainService/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "rootView": {
+      "viewName": "zempskilltracker.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    },
+    "dependencies": {
+      "minUI5Version": "1.120.14",
+      "libs": {
+        "sap.f": {},
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "zempskilltracker.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {}
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "type": "View",
+        "viewType": "XML",
+        "path": "zempskilltracker.view",
+        "controlId": "layout",
+        "controlAggregation": "beginColumnPages",
+        "bypassed": {
+          "target": "notFound"
+        },
+        "async": true
+      },
+      "routes": [
+        {
+          "pattern": "",
+          "name": "master",
+          "target": "master"
+        },
+        {
+          "pattern": "{EmployeePath}/:?query:",
+          "name": "detail",
+          "target": [
+            "master",
+            "detail"
+          ]
+        }
+      ],
+      "targets": {
+        "master": {
+          "name": "Master",
+          "level": 1,
+          "id": "master"
+        },
+        "detail": {
+          "name": "Detail",
+          "id": "detail",
+          "level": 1,
+          "controlAggregation": "midColumnPages"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,245 @@
+<mvc:View
+    controllerName="zempskilltracker.controller.Detail"
+    xmlns="sap.uxap"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:m="sap.m"
+    xmlns:f="sap.f"
+    xmlns:form="sap.ui.layout.form"
+    xmlns:smartTable="sap.ui.comp.smarttable"
+	xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+    displayBlock="true"
+    height="100%"
+>
+    <ObjectPageLayout
+        id="objectPageLayout"
+        showTitleInHeaderContent="true"
+        alwaysShowContentHeader="false"
+        preserveHeaderStateOnScroll="false"
+        headerContentPinnable="true"
+        isChildPage="true"
+        upperCaseAnchorBar="false"
+        showFooter="{editView>/editable}"
+    >
+        <headerTitle>
+            <ObjectPageDynamicHeaderTitle>
+                <expandedHeading>
+                    <m:Title text="{EmployeeNo}" wrapping="true" class="sapUiSmallMarginEnd"/>
+                </expandedHeading>
+
+                <expandedContent>
+					<m:Label text="{EmployeeName}"/>
+				</expandedContent>
+
+                <snappedHeading>
+					<m:HBox>
+						<m:VBox>
+							<m:Avatar src="./test-resources/sap/uxap/images/imageID_275314.png" class="sapUiSmallMarginEnd" />
+						</m:VBox>
+
+						<m:VBox>
+							<m:Title text="{EmployeeNo}" wrapping="true"/>
+							<m:Label text="{EmployeeName}"/>
+						</m:VBox>
+					</m:HBox>
+				</snappedHeading>
+
+                <snappedTitleOnMobile>
+					<m:Title text="{EmployeeNo}"/>
+				</snappedTitleOnMobile>
+
+                <navigationActions>
+                    <m:OverflowToolbarButton
+                        id="enterFullScreenBtn"
+                        type="Transparent"
+                        icon="sap-icon://full-screen"
+                        press=".ontoggleFullScreenPress"
+                        tooltip="Enter Full Screen Mode"
+                        visible="{= !${device>/system/phone} &amp;&amp; !${appView>/actionButtonsInfo/midColumn/fullScreen}}"
+                    />
+                    <m:OverflowToolbarButton
+                        id="exitFullScreenBtn"
+                        type="Transparent"
+                        icon="sap-icon://exit-full-screen"
+                        press=".ontoggleFullScreenPress"
+                        tooltip="Exit Full Screen Mode"
+                        visible="{= !${device>/system/phone} &amp;&amp; ${appView>/actionButtonsInfo/midColumn/fullScreen}}"
+                    />
+                    <m:OverflowToolbarButton 
+                        id="closeBtn"
+                        type="Transparent" 
+                        icon="sap-icon://decline" 
+                        press=".onCloseDetailPress"  
+                        tooltip="Close middle column"
+                    />
+                </navigationActions>
+
+                <actions>
+                    <m:Button text="Edit" type="Emphasized" visible="{=!${editView>/editable}}" press=".onEditPress"/>
+                    <m:OverflowToolbarButton
+                        type="Transparent"
+                        icon="sap-icon://email"
+                        press=".onSendEmailPress"
+                        id="sendEmail"
+                        tooltip="Send Email"
+                    />
+                </actions>
+            </ObjectPageDynamicHeaderTitle>
+        </headerTitle>
+
+        <headerContent>
+			<m:HeaderContainer id="headerContainer" showDividers="false">
+				<m:HBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+					<m:Avatar src="./test-resources/sap/uxap/images/imageID_275314.png" class="sapUiMediumMarginEnd" displaySize="L"/>
+
+					<m:VBox class="sapUiSmallMarginBottom">
+						<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+							<m:Label text="Designation:" class="sapUiTinyMarginEnd"/>
+							<m:Text text=" {Designation}"/>
+						</m:HBox>
+						<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+							<m:Label text="Role:" class="sapUiTinyMarginEnd"/>
+							<m:Text text="{Role}"/>
+						</m:HBox>
+						<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+							<m:Label text="Experience:" class="sapUiTinyMarginEnd"/>
+							<m:Text text="{Experience} years"/>
+						</m:HBox>
+					</m:VBox>
+				</m:HBox>
+
+				<m:VBox class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+						<m:Label text="Last Changed By:" class="sapUiSmallMarginEnd"/>
+						<m:Link text="{LastChangedBy}"/>
+					</m:HBox>
+
+					<m:HBox class="sapUiTinyMarginBottom" renderType="Bare">
+						<m:Label text="Last Changed On:" class="sapUiSmallMarginEnd"/>
+                        <m:Text text="{ path: 'LastChangedAt', 
+                                        type: 'sap.ui.model.type.DateTime', 
+                                        formatOptions: { pattern: 'MMMM dd, yyyy' } }"/>
+					</m:HBox>
+				</m:VBox>
+			</m:HeaderContainer>
+		</headerContent>
+
+        <sections>
+            <ObjectPageSection title="Employee Details">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+							<form:SimpleForm
+								editable="false"
+								layout="ColumnLayout"
+								labelSpanL="12"
+								labelSpanM="12"
+								emptySpanL="0"
+								emptySpanM="0"
+                                columnsXL="2"
+								columnsL="2"
+								columnsM="2">
+								<form:content>
+                                	<m:Label text="Status"/>
+									<m:Text text="{Status}"/>
+                                    <m:Label text="Immediately Available"/>
+									<m:Text text="{= ${ImmediateAvl} ? 'Yes' : 'No'}"/>
+									<m:Label text="Module"/>
+									<m:Text text="{ModuleEmp}"/>
+									<m:Label text="Module (Other)"/>
+									<m:Text text="{ModuleOther}"/>
+                                    <m:Label text="Leaving Date"/>
+                                    <m:Text text="{ path: 'LeavingDate', 
+                                                    type: 'sap.ui.model.type.DateTime', 
+                                                    formatOptions: { pattern: 'MMMM dd, yyyy' } }"/>
+                                    <m:Label text="Remarks"/>
+									<m:Text text="{Remarks}"/>
+                                    <m:Label text="Resume Url"/>
+									<m:Link text="{ResumeUrl}" press=".onResumePress"/>
+								</form:content>
+							</form:SimpleForm>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+
+            <ObjectPageSection title="Skills">
+                <subSections>
+                    <ObjectPageSubSection id="skillsSubsection">
+                        <blocks>
+                            <smartTable:SmartTable
+                                id="skillsSmartTable"
+                                entitySet="ZEMP_C_SKILLS"
+                                editable="{editView>/editable}"
+                                tableBindingPath="to_EMP_SKILLS"
+                                tableType="ResponsiveTable"
+                                useVariantManagement="true"
+                                useTablePersonalisation="true"
+                                enableAutoBinding="true"
+                                enableExport="true"
+                                class="sapUiResponsiveContentPadding"
+                                demandPopin="true"
+                                showDetailsButton="true"
+                                showFullScreenButton="true"
+                                app:useSmartToggle="true">
+                                <!-- layout data used to make the table growing but the filter bar fixed -->
+                                <smartTable:layoutData>
+                                    <m:FlexItemData growFactor="1" baseSize="0%"/>
+                                </smartTable:layoutData>
+                                <smartTable:customToolbar>
+                                    <m:OverflowToolbar design="Transparent">
+                                        <m:ToolbarSpacer/>
+                                        <m:Button  text= "Create" enabled="{editView>/editable}" press=".onCreatePress"/>
+                                        <m:Button  text= "Delete" enabled="{editView>/editable}" press=".onDeletePress"/>
+                                    </m:OverflowToolbar>
+		                        </smartTable:customToolbar>
+                            </smartTable:SmartTable>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+
+            <ObjectPageSection title="Certifications">
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <smartTable:SmartTable
+                                id="certificationsSmartTable"
+                                entitySet="ZEMP_C_CERTIFICATIONS"
+                                editable="{editView>/editable}"
+                                tableBindingPath="to_EMP_CERTIFICATIONS"
+                                tableType="ResponsiveTable"
+                                useVariantManagement="true"
+                                useTablePersonalisation="true"
+                                enableAutoBinding="true"
+                                enableExport="true"
+                                demandPopin="true"
+                                showDetailsButton="true"
+                                showFullScreenButton="true"
+                                class="sapUiResponsiveContentPadding"
+                                app:useSmartToggle="true">
+                                <!-- layout data used to make the table growing but the filter bar fixed -->
+                                <smartTable:layoutData>
+                                    <m:FlexItemData growFactor="1" baseSize="0%"/>
+                                </smartTable:layoutData>
+                                <smartTable:customToolbar>
+                                    <m:OverflowToolbar design="Transparent">
+                                        <m:ToolbarSpacer/>
+                                        <m:Button  text= "Create" enabled="{editView>/editable}" press=".onCreatePress"/>
+                                        <m:Button  text= "Delete" enabled="{editView>/editable}" press=".onDeletePress"/>
+                                    </m:OverflowToolbar>
+		                        </smartTable:customToolbar>
+                            </smartTable:SmartTable>
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+        </sections>
+        <footer>
+			<m:OverflowToolbar>
+				<m:ToolbarSpacer/>
+				<m:Button type="Emphasized" text="Save" press=".onSavePress"/>
+				<m:Button text="Cancel" press=".onCancelPress"/>
+			</m:OverflowToolbar>
+		</footer>
+    </ObjectPageLayout>
+</mvc:View>

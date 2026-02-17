@@ -1,0 +1,58 @@
+<core:FragmentDefinition
+    xmlns="sap.ui.comp.valuehelpdialog"
+    xmlns:m="sap.m"
+    xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:core="sap.ui.core">
+    <ValueHelpDialog
+        title="Gate Pass No"
+        ok=".onGPNoVHOkPress"
+        cancel=".onGPNoVHCancelPress"
+        supportRanges="false"
+        supportMultiselect="false"
+        key="ZGpno"
+        keys="ZGpno,ZWerks,ZGptyp,ZGpdat" 
+        descriptionKey="GP No">
+        <filterBar>
+            <fb:FilterBar advancedMode="true" search=".onGPNoVHFilterBarSearch" isRunningInValueHelpDialog="true">
+                <fb:filterGroupItems>
+                    <fb:FilterGroupItem
+                        groupName="__$INTERNAL$"
+                        name="ZWerks"
+                        label="Plant"
+                        visibleInFilterBar="true">
+                        <fb:control>
+                            <m:Input id="idGPNoPlant" name="ZWerks"/>
+                        </fb:control>
+                    </fb:FilterGroupItem>
+                    <fb:FilterGroupItem
+                        groupName="__$INTERNAL$"
+                        name="ZGpno"
+                        label="GP No"
+                        visibleInFilterBar="true">
+                        <fb:control>
+                            <m:Input name="ZGpno"/>
+                        </fb:control>
+                    </fb:FilterGroupItem>
+                    <fb:FilterGroupItem
+                        groupName="__$INTERNAL$"
+                        name="ZGptyp"
+                        label="Gp Type"
+                        visibleInFilterBar="true">
+                        <fb:control>
+                            <m:Input id="idGPNoType" name="ZGptyp"/>
+                        </fb:control>
+                    </fb:FilterGroupItem>
+                    <fb:FilterGroupItem
+                        groupName="__$INTERNAL$"
+                        name="ZGpdat"
+                        label="GP Date"
+                        visibleInFilterBar="true">
+                        <fb:control>
+                            <m:DatePicker id="idGPNoDate" name="ZGpdat"/>
+                        </fb:control>
+                    </fb:FilterGroupItem>
+                </fb:filterGroupItems>
+            </fb:FilterBar>
+        </filterBar>
+    </ValueHelpDialog>
+</core:FragmentDefinition>

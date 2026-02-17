@@ -1,0 +1,79 @@
+<mvc:View
+  controllerName="zgatepass.controller.GatePassHome"
+  xmlns="sap.m"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:core="sap.ui.core"
+  xmlns:layout="sap.ui.layout"
+  xmlns:form="sap.ui.layout.form">
+  <Page id="page">
+      <layout:Grid defaultSpan="L3 M4 S12" hSpacing="0" vSpacing="1">
+        <!-- LEFT column: vertical stack of action buttons -->
+        <layout:content>
+          <VBox class="leftButtons sapUiLargeMarginTop sapUiLargeMarginBegin" width="100%" renderType="Bare">
+            <Button text="Create New Gate Pass" width="220px" type="Default" press="onCreate"/>
+            <Button text="HOD Approval" width="220px" type="Default" press="onHod"/>
+            <Button text="Store Approval" width="220px" type="Default" press="onStore"/>
+            <Button text="Display Gate Pass" width="220px" type="Default" press="onDisplay"/>
+            <Button text="Sec Exit Vehicle" width="220px" type="Default" press="onSecExit"/>
+            <Button text="Sec Mat Rec" width="220px" type="Default" press="onSecMatRec"/>
+            <Button text="Change by Store" width="220px" type="Default" press="onChangeByStore"/>
+          </VBox>
+        </layout:content>
+
+        <!-- RIGHT column: two panels (Gate Pass of) and (GP Date & Number) -->
+        <layout:content>
+          <VBox width="100%" renderType="Bare">
+            <Panel class="gpPanel sapUiMediumMarginTopBottom" headerText="Gate Pass of" expandable="false" width="400px">
+              <layout:Grid defaultSpan="L12 M12 S12">
+                <layout:content>
+                  <form:SimpleForm
+                    editable="false"
+                    layout="ResponsiveGridLayout"
+                    labelSpanXL="6"
+                    labelSpanL="6"
+                    labelSpanM="6"
+                    emptySpanL="0"
+                    emptySpanM="0"
+                    columnsXL="2"
+                    columnsL="2"
+                    columnsM="2"
+                    singleContainerFullSize="true">
+                    <Label text="Plant" required="true"/>
+                    <Input id= "idPlant" value="{gatePassHome>/plant}" width="6rem" showValueHelp="true" valueHelpRequest=".onPlantVHRequest" valueHelpOnly="true"/>
+                    <Label text="Gate Pass Type" required="true"/>
+                    <Input id= "idGPType" value="{gatePassHome>/gpType}" width="4.5rem" maxLength="2" showValueHelp="true" valueHelpRequest=".onGPTypeVHRequest" valueHelpOnly="true"/>
+                  </form:SimpleForm>
+                </layout:content>
+              </layout:Grid>
+            </Panel>
+            <Panel class="gpPanel" headerText="GP Date &amp; Number" expandable="false" width="400px">
+              <layout:Grid defaultSpan="L12 M12 S12">
+                <layout:content>
+                  <form:SimpleForm
+                    editable="false"
+                    layout="ResponsiveGridLayout"
+                    labelSpanXL="6"
+                    labelSpanL="6"
+                    labelSpanM="6"
+                    emptySpanL="0"
+                    emptySpanM="0"
+                    columnsXL="2"
+                    columnsL="2"
+                    columnsM="2"
+                    singleContainerFullSize="true">
+                    <Label text="GP Date"/>
+                    <DatePicker value="{path: 'gatePassHome>/gpDate',
+                                        type: 'sap.ui.model.type.Date',
+                                        formatOptions: {
+                                          source: { pattern: 'yyyyMMdd' }}}" width="10rem"/>
+                    <Label text="GP No"/>
+                    <Input id= "idGPNo" value="{gatePassHome>/gpNo}" width="10rem" maxLength="10" showValueHelp="true" valueHelpRequest=".onGPNoVHRequest" valueHelpOnly="true"/>
+                  </form:SimpleForm>
+                </layout:content>
+              </layout:Grid>
+            </Panel>
+          </VBox>
+        </layout:content>
+      </layout:Grid>
+    </Page>
+</mvc:View>

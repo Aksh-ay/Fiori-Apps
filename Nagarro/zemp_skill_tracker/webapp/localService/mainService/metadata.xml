@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_ANALYTICS',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Analytics.v1" Alias="Analytics"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CODELIST',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.CodeList.v1" Alias="SAP__CodeList"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_MEASURES',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Measures.V1" Alias="Measures"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_UI',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="https://ps4:443/sap/opu/odata/iwfnd/catalogservice;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_VALIDATION',Version='0001',SAP__Origin='LOCAL')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Validation.V1" Alias="Validation"/>
+    </edmx:Reference>
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZEMP_SKILL_TRACKER_SRV_02" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="ZEMP_C_CERTIFICATIONSType" sap:label="Consumption View for Emp Certifications" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="EmployeeId"/>
+                    <PropertyRef Name="CertificationNum"/>
+                </Key>
+                <Property Name="EmployeeId" Type="Edm.Guid" Nullable="false" sap:label="Employee UUID" sap:quickinfo="Global Unique ID for table"/>
+                <Property Name="CertificationNum" Type="Edm.Int32" Nullable="false" sap:label="Certification Num" sap:quickinfo="4 Byte Signed Integer"/>
+                <Property Name="CertificationCode" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:text="CertificationName" sap:label="Certification Code" sap:quickinfo="Character Field with Length 10"/>
+                <Property Name="CertificationName" Type="Edm.String" MaxLength="100" sap:display-format="UpperCase" sap:label="Certification Name" sap:quickinfo="Character 100"/>
+                <Property Name="IssuedBy" Type="Edm.String" MaxLength="100" sap:display-format="UpperCase" sap:label="Issued By" sap:quickinfo="Character 100"/>
+                <Property Name="IssueDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Issue Date" sap:quickinfo="Field of type DATS"/>
+                <Property Name="ExpiryDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Expiry Date" sap:quickinfo="Field of type DATS"/>
+                <Property Name="CertificationLevel" Type="Edm.String" MaxLength="20" sap:display-format="UpperCase" sap:label="Certification Number" sap:quickinfo="Char 20"/>
+                <Property Name="Comments" Type="Edm.String" MaxLength="1333" sap:label="Comments"/>
+                <Property Name="NagarroSponsored" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Nagaro Sponsored" sap:quickinfo="Single-Character Flag"/>
+                <Property Name="CreatedBy" Type="Edm.String" MaxLength="12" sap:display-format="UpperCase" sap:label="Created By" sap:quickinfo="Character Field of Length 12"/>
+                <Property Name="CreatedAt" Type="Edm.DateTimeOffset" Precision="0" sap:label="Created By" sap:quickinfo="UTC Time Stamp in Short Form (YYYYMMDDhhmmss)"/>
+                <Property Name="ChangedBy" Type="Edm.String" MaxLength="12" sap:display-format="UpperCase" sap:label="Changed By" sap:quickinfo="Character Field of Length 12"/>
+                <Property Name="ChangedAt" Type="Edm.DateTimeOffset" Precision="0" ConcurrencyMode="Fixed" sap:label="Changed At" sap:quickinfo="UTC Time Stamp in Short Form (YYYYMMDDhhmmss)"/>
+                <Property Name="Mimetype" Type="Edm.String" MaxLength="128" sap:display-format="UpperCase" sap:label="Mime Type" sap:quickinfo="128 character"/>
+                <Property Name="AttachmentLength" Type="Edm.Int32" sap:label="Attachment Length" sap:quickinfo="4 Byte Signed Integer"/>
+                <Property Name="Attachment" Type="Edm.Binary" MaxLength="32000" sap:label="Certificate PDF" sap:quickinfo="Attachment"/>
+            </EntityType>
+            <EntityType Name="ZEMP_C_EMPLOYEESType" sap:label="Consumption View for ZEMP_I_EMPLOYEES" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="EmployeeUUID"/>
+                </Key>
+                <Property Name="EmployeeUUID" Type="Edm.Guid" Nullable="false"/>
+                <Property Name="EmployeeNo" Type="Edm.String" MaxLength="10" sap:display-format="NonNegative" sap:text="EmployeeName" sap:label="Employee" sap:quickinfo="Employee Number"/>
+                <Property Name="EmployeeName" Type="Edm.String" MaxLength="500" sap:label="Employee Name"/>
+                <Property Name="EmailId" Type="Edm.String" MaxLength="300" sap:label="Email" sap:quickinfo="Email Id" sap:semantics="email"/>
+                <Property Name="Location" Type="Edm.String" MaxLength="256" sap:label="Location" sap:quickinfo="Employee Location"/>
+                <Property Name="JoiningDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Joining Date"/>
+                <Property Name="ProjectAllocation" Type="Edm.String" MaxLength="500" sap:label="Project Allocation"/>
+                <Property Name="ModuleEmp" Type="Edm.String" MaxLength="50" sap:label="Module"/>
+                <Property Name="ModuleOther" Type="Edm.String" MaxLength="500" sap:label="Module (Other)" sap:quickinfo="Module Other"/>
+                <Property Name="Genus" Type="Edm.String" MaxLength="50" sap:label="Genus"/>
+                <Property Name="Designation" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Designation"/>
+                <Property Name="Role" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Role"/>
+                <Property Name="Experience" Type="Edm.Decimal" Precision="5" Scale="1" sap:label="Experience (Years)" sap:quickinfo="Experience"/>
+                <Property Name="ExperienceDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Experience Date" sap:quickinfo="Date on which experience was saved"/>
+                <Property Name="AvailabilityPct" Type="Edm.Decimal" Precision="3" Scale="0" sap:label="Availability %"/>
+                <Property Name="ProjectedPct" Type="Edm.Decimal" Precision="3" Scale="0" sap:label="Projected %"/>
+                <Property Name="ImmediateAvl" Type="Edm.Boolean" sap:label="Immediately Available?" sap:quickinfo="Immediately Avl"/>
+                <Property Name="AvailabilityFrom" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Availability From"/>
+                <Property Name="Remarks" Type="Edm.String" MaxLength="500" sap:label="Remarks" sap:heading=""/>
+                <Property Name="Status" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Status"/>
+                <Property Name="ResumeUrl" Type="Edm.String" MaxLength="500" sap:label="Resume URL" sap:heading=""/>
+                <Property Name="LeavingDate" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Leaving Date"/>
+                <Property Name="LastChangedBy" Type="Edm.String" MaxLength="12" sap:display-format="UpperCase" sap:label="Changed By" sap:quickinfo="User Name"/>
+                <Property Name="LastChangedAt" Type="Edm.DateTimeOffset" Precision="0" sap:label="Changed At" sap:quickinfo="UTC Time Stamp in Short Form (YYYYMMDDhhmmss)"/>
+                <NavigationProperty Name="to_EMP_CERTIFICATIONS" Relationship="ZEMP_SKILL_TRACKER_SRV_02.assoc_AF6114111457F23C786ECB8DA66F453F" FromRole="FromRole_assoc_AF6114111457F23C786ECB8DA66F453F" ToRole="ToRole_assoc_AF6114111457F23C786ECB8DA66F453F"/>
+                <NavigationProperty Name="to_EMP_SKILLS" Relationship="ZEMP_SKILL_TRACKER_SRV_02.assoc_ACB5D1D02689A609BE3679D73E111BFA" FromRole="FromRole_assoc_ACB5D1D02689A609BE3679D73E111BFA" ToRole="ToRole_assoc_ACB5D1D02689A609BE3679D73E111BFA"/>
+            </EntityType>
+            <EntityType Name="ZEMP_C_SKILLSType" sap:label="Consumption View for ZEMP_I_SKILLS" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="EmployeeId"/>
+                    <PropertyRef Name="SkillNum"/>
+                </Key>
+                <Property Name="EmployeeId" Type="Edm.Guid" Nullable="false" sap:label="Employee UUID" sap:quickinfo="Global Unique ID for table"/>
+                <Property Name="SkillNum" Type="Edm.Int32" Nullable="false" sap:label="Skill" sap:quickinfo="4 Byte Signed Integer"/>
+                <Property Name="SkillName" Type="Edm.String" MaxLength="100" sap:display-format="UpperCase" sap:label="Skill Name" sap:quickinfo="Character 100"/>
+                <Property Name="Category" Type="Edm.String" MaxLength="50" sap:label="Category" sap:quickinfo="Comment"/>
+                <Property Name="Proficiency" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Proficiency" sap:quickinfo="Character Field with Length 10"/>
+                <Property Name="YearsExperience" Type="Edm.Decimal" Precision="3" Scale="1" sap:label="Experience" sap:quickinfo="Employee years of experience"/>
+                <Property Name="LastValidated" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Last Validated" sap:quickinfo="Field of type DATS"/>
+                <Property Name="Comments" Type="Edm.String" MaxLength="1333" sap:label="Comments"/>
+                <Property Name="SkillType" Type="Edm.String" MaxLength="1" sap:display-format="UpperCase" sap:label="Skill Type" sap:quickinfo="Single-Character Flag"/>
+                <Property Name="CreatedBy" Type="Edm.String" MaxLength="12" sap:display-format="UpperCase" sap:label="Created By" sap:quickinfo="Character Field of Length 12"/>
+                <Property Name="CreatedAt" Type="Edm.DateTimeOffset" Precision="0" sap:label="Created At" sap:quickinfo="UTC Time Stamp in Short Form (YYYYMMDDhhmmss)"/>
+                <Property Name="ChangedBy" Type="Edm.String" MaxLength="12" sap:display-format="UpperCase" sap:label="Changed By" sap:quickinfo="Character Field of Length 12"/>
+                <Property Name="ChangedAt" Type="Edm.DateTimeOffset" Precision="0" sap:label="Changed At" sap:quickinfo="UTC Time Stamp in Short Form (YYYYMMDDhhmmss)"/>
+                <Property Name="Mimetype" Type="Edm.String" MaxLength="128" sap:display-format="UpperCase" sap:label="Mime Type" sap:quickinfo="128 character"/>
+                <Property Name="ResumeLength" Type="Edm.Int32" sap:label="Resume Length" sap:quickinfo="4 Byte Signed Integer"/>
+                <Property Name="ResumeSingle" Type="Edm.Binary" MaxLength="32000" sap:label="Resume Single" sap:quickinfo="Attachment"/>
+            </EntityType>
+            <Association Name="assoc_ACB5D1D02689A609BE3679D73E111BFA" sap:content-version="1">
+                <End Type="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_EMPLOYEESType" Multiplicity="1" Role="FromRole_assoc_ACB5D1D02689A609BE3679D73E111BFA"/>
+                <End Type="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_SKILLSType" Multiplicity="*" Role="ToRole_assoc_ACB5D1D02689A609BE3679D73E111BFA"/>
+            </Association>
+            <Association Name="assoc_AF6114111457F23C786ECB8DA66F453F" sap:content-version="1">
+                <End Type="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_EMPLOYEESType" Multiplicity="1" Role="FromRole_assoc_AF6114111457F23C786ECB8DA66F453F"/>
+                <End Type="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_CERTIFICATIONSType" Multiplicity="*" Role="ToRole_assoc_AF6114111457F23C786ECB8DA66F453F"/>
+            </Association>
+            <EntityContainer Name="ZEMP_SKILL_TRACKER_SRV_02_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="ZEMP_C_CERTIFICATIONS" EntityType="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_CERTIFICATIONSType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZEMP_C_EMPLOYEES" EntityType="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_EMPLOYEESType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:searchable="true" sap:content-version="1"/>
+                <EntitySet Name="ZEMP_C_SKILLS" EntityType="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_SKILLSType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <AssociationSet Name="assoc_AF6114111457F23C786ECB8DA66F453F" Association="ZEMP_SKILL_TRACKER_SRV_02.assoc_AF6114111457F23C786ECB8DA66F453F" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ZEMP_C_EMPLOYEES" Role="FromRole_assoc_AF6114111457F23C786ECB8DA66F453F"/>
+                    <End EntitySet="ZEMP_C_CERTIFICATIONS" Role="ToRole_assoc_AF6114111457F23C786ECB8DA66F453F"/>
+                </AssociationSet>
+                <AssociationSet Name="assoc_ACB5D1D02689A609BE3679D73E111BFA" Association="ZEMP_SKILL_TRACKER_SRV_02.assoc_ACB5D1D02689A609BE3679D73E111BFA" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ZEMP_C_EMPLOYEES" Role="FromRole_assoc_ACB5D1D02689A609BE3679D73E111BFA"/>
+                    <End EntitySet="ZEMP_C_SKILLS" Role="ToRole_assoc_ACB5D1D02689A609BE3679D73E111BFA"/>
+                </AssociationSet>
+            </EntityContainer>
+            <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <Annotations Target="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_SKILL_TRACKER_SRV_02_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ApplyMultiUnitBehaviorForSortingAndFiltering" Bool="true"/>
+            </Annotations>
+            <Annotations Target="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_SKILL_TRACKER_SRV_02_Entities/ZEMP_C_EMPLOYEES" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Capabilities.FilterRestrictions">
+                    <Record>
+                        <PropertyValue Property="FilterExpressionRestrictions">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="Location"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SearchExpression"/>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="Property" PropertyPath="Remarks"/>
+                                    <PropertyValue Property="AllowedExpressions" String="SearchExpression"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.NavigationRestrictions">
+                    <Record>
+                        <PropertyValue Property="RestrictedProperties">
+                            <Collection>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="to_EMP_CERTIFICATIONS"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                                <Record>
+                                    <PropertyValue Property="NavigationProperty" NavigationPropertyPath="to_EMP_SKILLS"/>
+                                    <PropertyValue Property="InsertRestrictions">
+                                        <Record>
+                                            <PropertyValue Property="Insertable" Bool="false"/>
+                                        </Record>
+                                    </PropertyValue>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+                <Annotation Term="Capabilities.SortRestrictions">
+                    <Record>
+                        <PropertyValue Property="NonSortableProperties">
+                            <Collection>
+                                <PropertyPath>Location</PropertyPath>
+                                <PropertyPath>Remarks</PropertyPath>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_CERTIFICATIONSType/Mimetype" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="SAP__core.IsMediaType"/>
+            </Annotations>
+            <Annotations Target="ZEMP_SKILL_TRACKER_SRV_02.ZEMP_C_SKILLSType/Mimetype" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="SAP__core.IsMediaType"/>
+            </Annotations>
+            <atom:link rel="self" href="https://ps4:443/sap/opu/odata/sap/ZEMP_SKILL_TRACKER_SRV_02/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://ps4:443/sap/opu/odata/sap/ZEMP_SKILL_TRACKER_SRV_02/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

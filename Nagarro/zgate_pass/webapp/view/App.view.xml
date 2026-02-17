@@ -1,0 +1,9 @@
+<mvc:View controllerName="zgatepass.controller.App"
+    xmlns:mvc="sap.ui.core.mvc" 
+    xmlns="sap.m" 
+    xmlns:layout="sap.ui.layout.form"  
+    displayBlock="true" 
+    id="App">
+    <App id="app"/>
+<!--  Page content  -->
+</mvc:View>

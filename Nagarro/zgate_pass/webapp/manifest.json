@@ -1,0 +1,127 @@
+{
+  "_version": "1.76.0",
+  "sap.app": {
+    "id": "zgatepass",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:basic",
+      "version": "1.20.0",
+      "toolsId": "0ddffade-3299-47d3-b391-1792132aa23a"
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "GatePassHome-manage": {
+          "semanticObject": "ZGATE_PASS_HOME",
+          "action": "manage",
+          "title": "{{GatePassHome-manage.flpTitle}}",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/sap/opu/odata/sap/ZMM_GATE_PASS_SRV/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "localUri": "localService/mainService/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": false,
+    "dependencies": {
+      "minUI5Version": "1.143.2",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "zgatepass.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {}
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "controlAggregation": "pages",
+        "controlId": "app",
+        "transition": "slide",
+        "type": "View",
+        "viewType": "XML",
+        "path": "zgatepass.view",
+        "async": true,
+        "viewPath": "zgatepass.view"
+      },
+      "routes": [
+        {
+          "name": "RouteGatePassHome",
+          "pattern": ":?query:",
+          "target": [
+            "TargetGatePassHome"
+          ]
+        }
+      ],
+      "targets": {
+        "TargetGatePassHome": {
+          "id": "GatePassHome",
+          "name": "GatePassHome"
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "zgatepass.view.App",
+      "type": "XML",
+      "id": "App",
+      "async": true
+    }
+  }
+}

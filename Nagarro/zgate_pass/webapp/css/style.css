@@ -1,0 +1,34 @@
+/* Enter your custom styles here */
+.leftButtons .sapMBtn {
+    margin-bottom: 12px;                 /* spacing between buttons */
+}
+
+.leftButtons .sapMBtnInner {
+    background: linear-gradient(#fdf8cf, #f3e293);  /* yellow SAP-GUI style */
+    border: 1px solid #cbb676;
+    border-radius: 2px;
+    box-shadow: inset 0 1px 0 #fff6d1;
+}
+
+.leftButtons .sapMBtnInner:hover {
+    background: linear-gradient(#fff9d7, #f6e9a8);
+}
+
+.leftButtons .sapMBtnInner:active {
+    background: linear-gradient(#f0e3a8, #e2d287);
+}
+
+.leftButtons .sapMBtnInner > span {
+    color: black !important;
+}
+
+.gpPanel {
+    border: 1px solid #c5d3e3;      /* light grey-blue border */
+    background-color: #f7faff;      /* very light blue background */
+    padding: 8px;
+}
+
+.gpPanel .sapMPanelHdr {
+    background-color: #e5edf7 !important;  /* blue-ish panel header like SAP GUI */
+    border-bottom: 1px solid #c5d3e3;
+}
