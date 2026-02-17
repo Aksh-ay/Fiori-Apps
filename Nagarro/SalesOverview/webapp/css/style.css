@@ -1,0 +1,162 @@
+/* Enter your custom styles here *//* Enter your custom styles here */
+
+
+/* Make the button look like an image tile */
+.imageButton {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* Elevation on hover */
+.imageButton:hover {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+
+/* Stack icon above text */
+.imageButton .sapMBtnContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Bigger image size */
+.imageButton .sapMBtnIcon {
+  width: 64px;
+  height: 64px;
+  font-size: 0;          /* hide icon font size assumptions */
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Optional: emphasize text */
+.imageButton .sapMBtnText {
+  font-weight: 600;
+}
+.SwitchClass{
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+#filterForm .sapUiFormResLayout > div {
+  margin-bottom: 0.5rem;
+}
+
+/* Filters area animation container */
+.filtersArea {
+  overflow: hidden;
+  transition: max-height 0.35s ease, opacity 0.35s ease;
+  max-height: 1000px; /* expanded */
+  opacity: 1;
+}
+
+/* Collapsing state before making invisible */
+.filtersArea.collapsed {
+  max-height: 0;
+  opacity: 0;
+}
+.IconTabBar{
+  padding-top : 1rem;
+  margin-top: 10rem;
+}
+
+.sapMITH.sapMITBInLine .sapMITBHead {
+    padding-top: 1.5rem !important;
+}
+
+
+/* Reduce excessive margins on phones */
+@media (max-width: 768px) {
+  .sapUiSmallMargin {
+    margin: 0.5rem !important;
+  }
+}
+
+/* Make tab headers tighter on phones */
+.sapMITBContent {
+  padding: 0.5rem !important;
+}
+
+/* Prevent horizontal scroll inside tables */
+.sapMListTbl {
+  table-layout: fixed; /* helps wrapping */
+}
+
+/* Smooth horizontal collapse/expand for the side content */
+.filterSide {
+  width: 20rem; /* matches Panel width */
+  transition: width 240ms ease, padding 240ms ease, margin 240ms ease;
+  overflow: hidden;
+}
+
+/* When hidden, shrink width to zero */
+.filters-hidden .filterSide {
+  width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* Optional: fade children */
+.filterSide > * {
+  transition: opacity 180ms ease;
+}
+.filters-hidden .filterSide > * {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.HisYearTitle {
+  margin-left: 90px !important; /* <-- your mobile value */
+}
+
+@media (min-width: 1024px) {
+  .HisYearTitle {
+    margin-left: 200px !important; /* <-- your desktop value */
+  }
+}
+.FetchDataButton{
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+/* Reduce vertical space between label and control slightly */
+.sapMLabel ~ .sapMComboBoxBase,
+.sapMLabel ~ .sapMSegB {
+  margin-top: 0.25rem;
+}
+
+/* Tokenizer compact spacing */
+#chartTokens {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+/* InfoToolbar typography tweak */
+.sapMTB-Info-CTX .sapMLabel {
+  font-weight: 600;
+}
+
+/* Let flex children actually shrink so that scrolling works in mobile */
+.HisMainScroll,
+.HisCardScroll {
+  min-height: 0 !important; /* critical for flex overflow on mobile */
+}
+
+/* When horizontally scrolling, allow the content to shrink in width too */
+.HisMainScroll {
+  min-width: 0 !important;
+}
+
+/* Optional: avoid the bottom-most content sitting under iOS home indicator */
+.sapUiBody.sapUiSizeCozy .HisCardScroll .sapMScrollContScroll {
+  padding-bottom: env(safe-area-inset-bottom, 12px);
+}
+
+/* Optional: if you still see a tiny clip at the bottom, give the scroller itself a small inset */
+.HisCardScroll {
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+}
+.FilterTextStyle{
+font-size: 11px;
+}

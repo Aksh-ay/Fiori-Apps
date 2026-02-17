@@ -1,0 +1,98 @@
+<core:FragmentDefinition xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:layout="sap.ui.layout"
+  xmlns:vizc="sap.viz.ui5.controls"
+  xmlns:vizdata="sap.viz.ui5.data">
+
+  <Dialog id="chartOptionsDialogHis" title="Build Chart" contentWidth="56rem" contentHeight="38rem" afterClose=".onChartDialogAfterClose">
+
+    <!-- ******** CONTENT AREA ******** -->
+    <content>
+      <VBox class="sapUiMediumMargin">
+
+        <!-- Row 1: Chart Type / Measure / Dimension -->
+        <HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginBottom">
+
+          <VBox width="33%">
+            <Label text="Chart Type"/>
+            <ComboBox id="cbChartTypeHis" width="12rem" selectedKey="{chartMetaHis>/ChartType}" selectionChange=".onChartTypeChange">
+              <core:Item key="column" text="Column"/>
+              <core:Item key="bar" text="Bar"/>
+              <core:Item key="line" text="Line"/>
+              <!-- <core:Item key="pie" text="Pie"/>
+              <core:Item key="donut" text="Donut"/>
+              <core:Item key="dual_column" text="Dual Column (Quantity + USD)"/> -->
+            </ComboBox>
+          </VBox>
+
+          <VBox width="33%">
+            <Label text="Measure"/>
+            <SegmentedButton id="sbMeasureHis" width="100%" enabled="{= ${chartMetaHis>/ChartType} !== 'dual_column' }" selectionChange=".onMeasureChange" selectedKey="{chartMetaHis>/Measure}">
+              <items>
+                <SegmentedButtonItem key="Quantity" text="Quantity"/>
+                <SegmentedButtonItem key="USD Value" text="USD Value"/>
+              </items>
+            </SegmentedButton>
+          </VBox>
+
+          <VBox width="33%">
+            <Label text="Against (Dimension)"/>
+            <ComboBox id="cbDimensionHis" width="100%" selectedKey="{chartMetaHis>/DimensionKey}" selectionChange=".onDimensionChange" items="{ path: 'chartMetaHis>/Dimensions' }">
+              <core:Item key="{chartMetaHis>key}" text="{chartMetaHis>text}"/>
+            </ComboBox>
+          </VBox>
+
+        </HBox>
+
+
+        <!-- Row 2: Compare Across Years -->
+        <HBox class="sapUiSmallMarginTop">
+
+          <!-- <VBox width="33%">
+            <Label text="Compare across Years"/>
+            <Switch id="swCompareYearsHis" state="{chartMetaHis>/CompareAcrossYears}" change=".onCompareAcrossYearsToggle"/>
+          </VBox> -->
+
+          <VBox width="33%" visible="{chartMetaHis>/CompareAcrossYears}">
+            <Label text="Years to Compare"/>
+            <MultiComboBox id="cbCmpYearsHis" width="12rem" selectedKeys="{chartMetaHis>/CompareYearKeys}" selectionChange=".onCompareYearsChange" items="{ path: 'chartMetaHis>/CompareYearsList' }">
+              <core:Item key="{chartMetaHis>key}" text="{chartMetaHis>text}"/>
+            </MultiComboBox>
+          </VBox>
+
+        </HBox>
+        <!-- Chart Preview -->
+        <VBox class="sapUiMediumMarginTop">
+          <Text text="Chart Preview" class="sapUiTinyMarginBottom"/>
+
+
+          <vizc:VizFrame id="vfSalesHis" width="100%" height="22rem" uiConfig="{applicationSet:'fiori'}">
+            <vizc:dataset>
+              <vizdata:FlattenedDataset data="{ path: 'chartModelHis>/ChartData' }">
+                <vizdata:dimensions>
+                  <vizdata:DimensionDefinition name="Category" value="{chartModelHis>Category}" />
+                  <vizdata:DimensionDefinition name="Year" value="{chartModelHis>Year}" />
+                </vizdata:dimensions>
+                <vizdata:measures>
+                  <vizdata:MeasureDefinition name="Quantity" value="{chartModelHis>Quantity}" />
+                  <vizdata:MeasureDefinition name="USD Value" value="{chartModelHis>USDValue}" />
+                </vizdata:measures>
+              </vizdata:FlattenedDataset>
+            </vizc:dataset>
+            <vizc:feeds/>
+          </vizc:VizFrame>
+
+          <vizc:Popover id="vfPopoverHis"/>
+
+        </VBox>
+
+      </VBox>
+    </content>
+
+    <!-- ******** BUTTON ******** -->
+    <beginButton>
+      <Button text="Close" press=".onChartDialogCancel"/>
+    </beginButton>
+
+  </Dialog>
+</core:FragmentDefinition>

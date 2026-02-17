@@ -1,0 +1,373 @@
+<mvc:View controllerName="zsd_sales_inv.controller.Main"
+  xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core"
+  xmlns:layout="sap.ui.layout"
+  xmlns:table="sap.ui.table">
+
+  <App id="Main">
+  
+    <pages>
+      <Page id="MainPage" enableScrolling="false" showHeader="true" showFooter="false">
+       <customHeader>
+            <Toolbar>
+                <!-- <Image src="images/jindal.png" width="40px" height="40px" /> -->
+                <ToolbarSpacer />
+                <Title text="Invoice Detail" level="H1" class="sapUiTinyMarginBegin" />
+                <ToolbarSpacer />
+            </Toolbar>
+        </customHeader>
+        <layout:DynamicSideContent id="dsc" sideContentPosition="Begin" sideContentVisibility="AlwaysShow" equalSplit="false" showSideContent="true">
+
+          <!-- ========== FILTER PANEL (ALL COLUMNS) ========== -->
+          <layout:sideContent>
+            <VBox class="sapUiSmallMargin">
+              <Toolbar>
+                <Title text="" />
+                <ToolbarSpacer />
+                <Button id="btnToggleSide" text="Filters" type="Transparent" icon="sap-icon://menu2" press=".onToggleSideContent" />
+              </Toolbar>
+
+              <VBox class="sapUiSmallMarginTop">
+
+                <!-- Period -->
+                <HBox>
+                  <Label text="Year-Month" class="FilterTextStyle" labelFor="fYearMonth" width="8rem" />
+                  <DatePicker id="fYearMonth" width="12rem" displayFormat="yyyy-MM" valueFormat="yyyyMM" placeholder="YYYY-MM" />
+                </HBox>
+                <HBox>
+                  <Label text="Quarter" class="FilterTextStyle" labelFor="fQuarter" width="8rem" />
+                  <MultiComboBox id="fQuarter" width="10rem" items="{ path: 'oGlobalModel>/QuarterList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <HBox>
+                  <Label text="Month" class="FilterTextStyle" labelFor="fMonth" width="8rem" />
+                  <MultiComboBox id="fMonth" width="10rem" items="{ path: 'oGlobalModel>/MonthList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <!-- Invoice -->
+                <HBox>
+                  <Label text="Bill No" class="FilterTextStyle" labelFor="fBillNo" width="8rem" />
+                  <MultiComboBox id="fBillNo" width="16rem" items="{ path: 'oGlobalModel>/BillNoList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <HBox>
+                  <Label text="Invoice Date" class="FilterTextStyle" labelFor="fBillDateDR" width="8rem" />
+                  <DateRangeSelection id="fBillDateDR" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" width="16rem" delimiter=" to " />
+                </HBox>
+
+                <!-- References -->
+                <HBox>
+                  <Label text="Contract No" class="FilterTextStyle" labelFor="fContract" width="8rem" />
+                  <MultiComboBox id="fContract" width="16rem" items="{ path: 'oGlobalModel>/ContractList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <HBox>
+                  <Label text="SO No" class="FilterTextStyle" labelFor="fSo" width="8rem" />
+                  <MultiComboBox id="fSo" width="16rem" items="{ path: 'oGlobalModel>/SoList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <HBox>
+                  <Label text="Delivery No" class="FilterTextStyle" labelFor="fDelivery" width="8rem" />
+                  <MultiComboBox id="fDelivery" width="16rem" items="{ path: 'oGlobalModel>/DeliveryList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <!-- Material & Currency -->
+                <HBox>
+                  <Label text="Material" class="FilterTextStyle" labelFor="fMaterial" width="8rem" />
+                  <MultiComboBox id="fMaterial" width="18rem" items="{ path: 'oGlobalModel>/MaterialList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <HBox>
+                  <Label text="Currency" class="FilterTextStyle" labelFor="fCurrency" width="8rem" />
+                  <MultiComboBox id="fCurrency" width="10rem" items="{ path: 'oGlobalModel>/CurrencyList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <!-- Numeric: Quantity -->
+                <HBox>
+                  <Label text="Quantity" class="FilterTextStyle" width="8rem" />
+                  <Select id="fQtyOp" width="7rem" selectedKey="{view>/qty/op}">
+                    <core:Item key="EQ" text=" = " />
+                    <core:Item key="NE" text=" ≠ " />
+                    <core:Item key="GT" text="> " />
+                    <core:Item key="GE" text=" ≥ " />
+                    <core:Item key="LT" text=" &lt; " />
+                    <core:Item key="LE" text=" ≤ " />
+                    <core:Item key="BT" text="Between" />
+                  </Select>
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fQtyVal1" width="7rem" type="Number" placeholder="{= ${view>/qty/op} === 'BT' ? 'From' : 'Value'}" value="{view>/qty/v1}" />
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fQtyVal2" width="7rem" type="Number" placeholder="To" value="{view>/qty/v2}" visible="{= ${view>/qty/op} === 'BT' }" />
+                </HBox>
+
+                <!-- Numeric: Basic Value -->
+                <HBox>
+                  <Label text="Basic Value" class="FilterTextStyle" width="8rem" />
+                  <Select id="fBasicOp" width="7rem" selectedKey="{view>/basic/op}">
+                    <core:Item key="EQ" text=" = " />
+                    <core:Item key="NE" text=" ≠ " />
+                    <core:Item key="GT" text="> " />
+                    <core:Item key="GE" text=" ≥ " />
+                    <core:Item key="LT" text=" &lt; " />
+                    <core:Item key="LE" text=" ≤ " />
+                    <core:Item key="BT" text="Between" />
+                  </Select>
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fBasicVal1" width="7rem" type="Number" placeholder="{= ${view>/basic/op} === 'BT' ? 'From' : 'Value'}" value="{view>/basic/v1}" />
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fBasicVal2" width="7rem" type="Number" placeholder="To" value="{view>/basic/v2}" visible="{= ${view>/basic/op} === 'BT' }" />
+                </HBox>
+
+                <!-- Numeric: VAT Value -->
+                <HBox>
+                  <Label text="VAT Value" class="FilterTextStyle" width="8rem" />
+                  <Select id="fVatOp" width="7rem" selectedKey="{view>/vat/op}">
+                    <core:Item key="EQ" text=" = " />
+                    <core:Item key="NE" text=" ≠ " />
+                    <core:Item key="GT" text="> " />
+                    <core:Item key="GE" text=" ≥ " />
+                    <core:Item key="LT" text=" &lt; " />
+                    <core:Item key="LE" text=" ≤ " />
+                    <core:Item key="BT" text="Between" />
+                  </Select>
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fVatVal1" width="7rem" type="Number" placeholder="{= ${view>/vat/op} === 'BT' ? 'From' : 'Value'}" value="{view>/vat/v1}" />
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fVatVal2" width="7rem" type="Number" placeholder="To" value="{view>/vat/v2}" visible="{= ${view>/vat/op} === 'BT' }" />
+                </HBox>
+
+                <!-- Numeric: Total Invoice Value -->
+                <HBox>
+                  <Label text="Invoice Value" class="FilterTextStyle" width="8rem" />
+                  <Select id="fInvOp" width="7rem" selectedKey="{view>/inv/op}">
+                    <core:Item key="EQ" text=" = " />
+                    <core:Item key="NE" text=" ≠ " />
+                    <core:Item key="GT" text="> " />
+                    <core:Item key="GE" text=" ≥ " />
+                    <core:Item key="LT" text=" &lt; " />
+                    <core:Item key="LE" text=" ≤ " />
+                    <core:Item key="BT" text="Between" />
+                  </Select>
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fInvVal1" width="7rem" type="Number" placeholder="{= ${view>/inv/op} === 'BT' ? 'From' : 'Value'}" value="{view>/inv/v1}" />
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fInvVal2" width="7rem" type="Number" placeholder="To" value="{view>/inv/v2}" visible="{= ${view>/inv/op} === 'BT' }" />
+                </HBox>
+
+                <!-- Numeric: Pieces -->
+                <HBox>
+                  <Label text="Pieces" class="FilterTextStyle" width="8rem" />
+                  <Select id="fPiecesOp" width="7rem" selectedKey="{view>/pieces/op}">
+                    <core:Item key="EQ" text=" = " />
+                    <core:Item key="NE" text=" ≠ " />
+                    <core:Item key="GT" text="> " />
+                    <core:Item key="GE" text=" ≥ " />
+                    <core:Item key="LT" text=" &lt; " />
+                    <core:Item key="LE" text=" ≤ " />
+                    <core:Item key="BT" text="Between" />
+                  </Select>
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fPiecesVal1" width="7rem" type="Number" placeholder="{= ${view>/pieces/op} === 'BT' ? 'From' : 'Value'}" value="{view>/pieces/v1}" />
+                  <ToolbarSpacer width="0.5rem" />
+                  <Input id="fPiecesVal2" width="7rem" type="Number" placeholder="To" value="{view>/pieces/v2}" visible="{= ${view>/pieces/op} === 'BT' }" />
+                </HBox>
+
+                <!-- Vehicle & Last Update Date -->
+                <HBox>
+                  <Label text="Vehicle No" class="FilterTextStyle" labelFor="fVehicle" width="8rem" />
+                  <MultiComboBox id="fVehicle" width="16rem" items="{ path: 'oGlobalModel>/VehicleList' }">
+                    <items>
+                      <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                    </items>
+                  </MultiComboBox>
+                </HBox>
+
+                <HBox>
+                  <Label text="Last Update" class="FilterTextStyle" labelFor="fLastDateDR" width="8rem" />
+                  <DateRangeSelection id="fLastDateDR" displayFormat="yyyy-MM-dd" valueFormat="yyyy-MM-dd" width="16rem" delimiter=" to " />
+                </HBox>
+
+                <HBox class="sapUiSmallMarginTop">
+                  <Button text="Reset" type="Transparent" press=".onResetFilters" />
+                </HBox>
+              </VBox>
+            </VBox>
+          </layout:sideContent>
+
+          <!-- ========== MAIN CONTENT (TABLE UNCHANGED) ========== -->
+          <layout:mainContent>
+            <VBox class="sapUiSmallMargin" height="100%">
+              <OverflowToolbar id="mainToolbar" design="Auto" class="sapUiSmallMarginBottom">
+                <Button id="btnToggleMain" text="Filters" type="Transparent" icon="sap-icon://menu2" press=".onToggleMainContent">
+                  <layoutData>
+                    <OverflowToolbarLayoutData priority="NeverOverflow" />
+                  </layoutData>
+                </Button>
+                <ToolbarSpacer />
+                <Button id="btnSync" text="" icon="sap-icon://synchronize" type="Transparent" press=".onSyncInvoice"/>
+                <Button id="btnSort" text="Sort" icon="sap-icon://sort" type="Transparent" press=".onOpenSortDialog">
+                  <layoutData>
+                    <OverflowToolbarLayoutData priority="NeverOverflow"/>
+                  </layoutData>
+                </Button>
+                <Button id="btnExport" text="Export to Excel" icon="sap-icon://excel-attachment" type="Transparent" press=".onExportExcel">
+                  <layoutData>
+                    <OverflowToolbarLayoutData priority="NeverOverflow"/>
+                  </layoutData>
+                </Button>
+              </OverflowToolbar>
+
+              <ScrollContainer id="tblScroll" width="100%" height="65%" vertical="true" horizontal="true" focusable="true">
+                <layoutData>
+                  <FlexItemData growFactor="1" />
+                </layoutData>
+
+                <Table id="salesTable" inset="false" growing="true" growingThreshold="10000" growingScrollToLoad="true" width="100%" items="{oGlobalModel>/SalesData}" sticky="ColumnHeaders">
+                  <columns>
+                    <Column width="6rem">
+                      <Text text="Year" />
+                    </Column>
+                    <Column width="6rem">
+                      <Text text="Quarter" />
+                    </Column>
+                    <Column width="6rem">
+                      <Text text="Month" />
+                    </Column>
+
+                    <Column width="10rem">
+                      <Text text="Invoice No" />
+                    </Column>
+                    <Column width="10rem">
+                      <Text text="Invoice Date" />
+                    </Column>
+
+                    <Column width="10rem">
+                      <Text text="Contract No" />
+                    </Column>
+                    <Column width="10rem">
+                      <Text text="SO No" />
+                    </Column>
+                    <Column width="10rem">
+                      <Text text="Delivery No" />
+                    </Column>
+
+                    <Column width="14rem">
+                      <Text text="Material" />
+                    </Column>
+                    <Column width="6rem">
+                      <Text text="Currency" />
+                    </Column>
+
+                    <Column hAlign="End" width="10rem">
+                      <Text text="Quantity" />
+                    </Column>
+                    <Column hAlign="End" width="10rem">
+                      <Text text="Basic Value" />
+                    </Column>
+                    <Column hAlign="End" width="10rem">
+                      <Text text="VAT Value" />
+                    </Column>
+                    <Column hAlign="End" width="12rem">
+                      <Text text="Total Invoice Value" />
+                    </Column>
+
+                    <Column hAlign="End" width="8rem">
+                      <Text text="Pieces" />
+                    </Column>
+                    <Column width="10rem">
+                      <Text text="Vehicle No" />
+                    </Column>
+                    <Column width="10rem">
+                      <Text text="Last Update" />
+                    </Column>
+                  </columns>
+
+                  <items>
+                    <ColumnListItem vAlign="Middle">
+                      <cells>
+                        <Text text="{oGlobalModel>Zyear}" />
+                        <Text text="{oGlobalModel>Quarter}" />
+                        <Text text="{oGlobalModel>Zmonth}" />
+
+                        <Text text="{oGlobalModel>BillNo}" />
+                        <Text text="{oGlobalModel>BillDate}" />
+
+                        <Text text="{oGlobalModel>ContractNo}" />
+                        <Text text="{oGlobalModel>SoNo}" />
+                        <Text text="{oGlobalModel>DeliveryNo}" />
+
+                        <Text text="{oGlobalModel>Material}" />
+                        <Text text="{oGlobalModel>Currecny}" />
+
+
+                        <!-- Quantity -->
+                        <Text text="{ path: 'oGlobalModel>Quantity', formatter: '.formatShortNumber' }" tooltip="{ path: 'oGlobalModel>Quantity', formatter: '.formatFullNumber' }" />
+
+                        <!-- Basic Value with currency code -->
+                        <Text text="{ parts: [{path: 'oGlobalModel>BasicValue'}, {path: 'oGlobalModel>Currecny'}],
+          formatter: '.formatShortCurrencyWithCode' }" tooltip="{ parts: [{path: 'oGlobalModel>BasicValue'}, {path: 'oGlobalModel>Currecny'}],
+            formatter: '.formatFullCurrencyWithCode' }" />
+
+                        <!-- VAT Value with currency code -->
+                        <Text text="{ parts: [{path: 'oGlobalModel>VatValue'}, {path: 'oGlobalModel>Currecny'}],
+          formatter: '.formatShortCurrencyWithCode' }" tooltip="{ parts: [{path: 'oGlobalModel>VatValue'}, {path: 'oGlobalModel>Currecny'}],
+            formatter: '.formatFullCurrencyWithCode' }" />
+
+                        <!-- Total Invoice Value with currency code -->
+                        <Text text="{ parts: [{path: 'oGlobalModel>TotalInvValue'}, {path: 'oGlobalModel>Currecny'}],
+          formatter: '.formatShortCurrencyWithCode' }" tooltip="{ parts: [{path: 'oGlobalModel>TotalInvValue'}, {path: 'oGlobalModel>Currecny'}],
+            formatter: '.formatFullCurrencyWithCode' }" />
+
+                        <!-- Pieces -->
+                        <Text text="{ path: 'oGlobalModel>NoOfPieces', formatter: '.formatShortNumber' }" tooltip="{ path: 'oGlobalModel>NoOfPieces', formatter: '.formatFullNumber' }" />
+
+
+                        <Text text="{oGlobalModel>NoOfPieces}" />
+                        <Text text="{oGlobalModel>VehicleNumber}" />
+                        <Text text="{oGlobalModel>LastDate}" />
+                      </cells>
+                    </ColumnListItem>
+                  </items>
+                </Table>
+              </ScrollContainer>
+            </VBox>
+          </layout:mainContent>
+
+        </layout:DynamicSideContent>
+      </Page>
+    </pages>
+  </App>
+</mvc:View>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZSD_SALES_RANK_SRV" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <EntityType Name="SalesRank" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Zyear"/>
+                    <PropertyRef Name="Country"/>
+                    <PropertyRef Name="SoldToParty"/>
+                </Key>
+                <Property Name="Dimension" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="DIMENSION" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Zyear" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="ZYEAR" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Country" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="COUNTRY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Sortby" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="SORTBY" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="SoldToParty" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="SOLD_TO_PARTY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Topn" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="TOPN" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Bottomn" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="BOTTOMN" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="ShipToParty" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="SHIP_TO_PARTY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Quantity" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="QUANTITY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="QuantityPrc" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="QUANTITY_PRC" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="UsdValue" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="USD_VALUE" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="UsdPrc" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="USD_PRC" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityContainer Name="ZSD_SALES_RANK_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="SalesRankSet" EntityType="ZSD_SALES_RANK_SRV.SalesRank" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+            </EntityContainer>
+            <atom:link rel="self" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_SALES_RANK_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_SALES_RANK_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

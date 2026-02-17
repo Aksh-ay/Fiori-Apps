@@ -1,0 +1,1137 @@
+
+CLASS zcl_sd_amdp_common DEFINITION
+  PUBLIC FINAL CREATE PUBLIC.
+
+  PUBLIC SECTION.
+    INTERFACES if_amdp_marker_hdb.
+
+    CLASS-METHODS overview_fetch
+      IMPORTING
+        VALUE(iv_lang)          TYPE sylangu DEFAULT 'E'
+        VALUE(iv_date_from)     TYPE dats    DEFAULT '00000000'
+        VALUE(iv_date_to)       TYPE dats    DEFAULT '00000000'
+        VALUE(iv_bukrs)         TYPE bukrs   DEFAULT ''
+        VALUE(it_years)         TYPE zsd_tt_year_list
+      EXPORTING
+        VALUE(rt_overview_data) TYPE zsd_tt_sales_overview.
+
+
+    CLASS-METHODS sales_invoice
+      IMPORTING
+        VALUE(iv_lang)         TYPE sylangu DEFAULT 'E'
+        VALUE(iv_date_from)    TYPE dats    DEFAULT '00000000'
+        VALUE(iv_date_to)      TYPE dats    DEFAULT '00000000'
+        VALUE(iv_bukrs)        TYPE bukrs   DEFAULT ''
+        VALUE(it_years)        TYPE zsd_tt_year_list
+      EXPORTING
+        VALUE(rt_invoice_data) TYPE zsd_tt_sales_invoice.
+
+
+    CLASS-METHODS sales_rank
+      IMPORTING
+        VALUE(iv_date_from) TYPE char8      " 'YYYYMMDD' or '00000000'
+        VALUE(iv_date_to)   TYPE char8      " 'YYYYMMDD' or '00000000'
+        VALUE(iv_dimension) TYPE string     " 'COUNTRY' or 'CUSTOMER'
+        VALUE(iv_sort_by)   TYPE string     " 'USD' or 'QTY'
+        VALUE(iv_topn)      TYPE i          " 0 / initial => ignore TOP
+        VALUE(iv_bukrs)     TYPE bukrs   DEFAULT ''
+        VALUE(iv_bottomn)   TYPE i          " 0 / initial => ignore BOTTOM
+      EXPORTING
+        VALUE(rt_rank_data) TYPE  zsd_tt_sales_rank. " (your STRING structure)
+
+
+ENDCLASS.
+
+CLASS zcl_sd_amdp_common IMPLEMENTATION.
+
+  METHOD overview_fetch
+    BY DATABASE PROCEDURE
+    FOR HDB
+    LANGUAGE SQLSCRIPT
+    OPTIONS READ-ONLY
+    USING vbrk vbrp tvtwt t001 t023t tcurr.
+
+    DECLARE dt_from DATE;
+    DECLARE dt_to   DATE;
+    DECLARE lv_has_years INTEGER;
+
+    dt_from := CASE
+      WHEN :iv_date_from = '00000000'
+        THEN TO_DATE( TO_NVARCHAR( YEAR(CURRENT_DATE)) || '0101', 'YYYYMMDD' )
+      ELSE TO_DATE( :iv_date_from, 'YYYYMMDD' )
+    END;
+
+    dt_to := CASE
+      WHEN :iv_date_to = '00000000'
+        THEN CURRENT_DATE
+      ELSE TO_DATE( :iv_date_to, 'YYYYMMDD' )
+    END;
+
+    SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END INTO lv_has_years FROM :it_years;
+
+    rt_Overview_data =
+      WITH base_rows AS (
+        SELECT DISTINCT
+          A.MANDT,
+          A.VBELN,
+          B.POSNR,
+          TO_DATE(A.FKDAT, 'YYYYMMDD')              AS fkdat_date,
+          YEAR(TO_DATE(A.FKDAT, 'YYYYMMDD'))        AS yyyy,
+          MONTH(TO_DATE(A.FKDAT, 'YYYYMMDD'))       AS mm,
+          QUARTER(TO_DATE(A.FKDAT, 'YYYYMMDD'))     AS qtr,
+          D.BUTXT                                   AS source_mill,
+          C.VTEXT                                   AS type_of_sales,
+          I.WGBEZ                                   AS product_category,
+          B.FKIMG                                   AS quantity_raw,
+          A.STWAE                                   AS doc_curr,
+          CAST(0 AS DECIMAL(23,5))                  AS usd_raw_dummy
+        FROM VBRK AS A
+        INNER JOIN VBRP AS B
+          ON  A.MANDT = B.MANDT
+          AND A.VBELN = B.VBELN
+        LEFT OUTER JOIN TVTWT AS C
+          ON  A.MANDT = C.MANDT
+          AND A.VTWEG = C.VTWEG
+          AND C.SPRAS = :iv_lang
+        LEFT OUTER JOIN T001 AS D
+          ON  A.MANDT = D.MANDT
+          AND A.BUKRS = D.BUKRS
+        LEFT OUTER JOIN T023T AS I
+          ON  B.MANDT = I.MANDT
+          AND B.MATKL = I.MATKL
+          AND I.SPRAS = :iv_lang
+        /* carry year selection + order if provided */
+        LEFT OUTER JOIN :it_years AS Y
+          ON YEAR(TO_DATE(A.FKDAT, 'YYYYMMDD')) = Y.zyear
+        WHERE
+          I.WGBEZ IS NOT NULL
+          AND ( :iv_bukrs = '' OR A.BUKRS = :iv_bukrs )
+          AND (
+                ( lv_has_years = 0
+                  AND TO_DATE(A.FKDAT, 'YYYYMMDD') BETWEEN dt_from AND dt_to )
+             OR ( lv_has_years = 1
+                  AND YEAR(TO_DATE(A.FKDAT, 'YYYYMMDD')) IN ( SELECT zyear FROM :it_years ) )
+          )
+      ),
+
+      /* pick rates per currency/date via correlated subselects */
+      rows_with_rates AS (
+        SELECT
+          BR.*,
+
+          /* doc-date rate row */
+          ( SELECT UKURS FROM TCURR
+            WHERE MANDT = BR.MANDT AND KURST = 'M'
+              AND FCURR = BR.doc_curr AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = BR.MANDT AND KURST = 'M'
+                      AND FCURR = BR.doc_curr AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= BR.fkdat_date )
+          ) AS ukurs_doc,
+          ( SELECT FFACT FROM TCURR
+            WHERE MANDT = BR.MANDT AND KURST = 'M'
+              AND FCURR = BR.doc_curr AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = BR.MANDT AND KURST = 'M'
+                      AND FCURR = BR.doc_curr AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= BR.fkdat_date )
+          ) AS ffact_doc,
+          ( SELECT TFACT FROM TCURR
+            WHERE MANDT = BR.MANDT AND KURST = 'M'
+              AND FCURR = BR.doc_curr AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = BR.MANDT AND KURST = 'M'
+                      AND FCURR = BR.doc_curr AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= BR.fkdat_date )
+          ) AS tfact_doc,
+
+          /* latest rate till today (fallback) */
+          ( SELECT UKURS FROM TCURR
+            WHERE MANDT = BR.MANDT AND KURST = 'M'
+              AND FCURR = BR.doc_curr AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = BR.MANDT AND KURST = 'M'
+                      AND FCURR = BR.doc_curr AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= CURRENT_DATE )
+          ) AS ukurs_today,
+          ( SELECT FFACT FROM TCURR
+            WHERE MANDT = BR.MANDT AND KURST = 'M'
+              AND FCURR = BR.doc_curr AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = BR.MANDT AND KURST = 'M'
+                      AND FCURR = BR.doc_curr AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= CURRENT_DATE )
+          ) AS ffact_today,
+          ( SELECT TFACT FROM TCURR
+            WHERE MANDT = BR.MANDT AND KURST = 'M'
+              AND FCURR = BR.doc_curr AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = BR.MANDT AND KURST = 'M'
+                      AND FCURR = BR.doc_curr AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= CURRENT_DATE )
+          ) AS tfact_today
+        FROM base_rows AS BR
+      ),
+      base_rows_usd AS (
+        SELECT
+          RW.MANDT, RW.VBELN, RW.POSNR, RW.fkdat_date, RW.yyyy, RW.mm, RW.qtr,
+          RW.source_mill, RW.type_of_sales, RW.product_category,
+          RW.quantity_raw,
+          RW.doc_curr,
+
+          /* Read NETWR once and derive the base amount with OMR rule */
+          CASE
+            WHEN RW.doc_curr = 'OMR' THEN
+              CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) ) / 10
+            ELSE
+              CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) )
+          END AS netwr_base,
+
+          /* Convert base amount to USD using doc-date rates; fallback to latest rates */
+          CASE
+            WHEN RW.doc_curr = 'USD' THEN
+              /* Already USD: take netwr_base (still honors OMR/10 if ever needed) */
+              CASE
+                WHEN RW.doc_curr = 'OMR' THEN
+                  CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) ) / 10
+                ELSE
+                  CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) )
+              END
+
+            WHEN COALESCE(RW.ukurs_doc, 0) > 0 THEN
+              /* Convert with document-date rate */
+              (
+                CASE
+                  WHEN RW.doc_curr = 'OMR' THEN
+                    CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) ) / 10
+                  ELSE
+                    CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) )
+                END
+              ) * (
+                RW.ukurs_doc *
+                ( CASE WHEN COALESCE(RW.tfact_doc, 1) = 0 THEN 1 ELSE COALESCE(RW.tfact_doc, 1) END ) /
+                ( CASE WHEN COALESCE(RW.ffact_doc, 1) = 0 THEN 1 ELSE COALESCE(RW.ffact_doc, 1) END )
+              )
+
+            WHEN COALESCE(RW.ukurs_today, 0) > 0 THEN
+              /* Fallback to latest rate up to today */
+              (
+                CASE
+                  WHEN RW.doc_curr = 'OMR' THEN
+                    CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) ) / 10
+                  ELSE
+                    CAST( ( SELECT NETWR FROM VBRK WHERE VBELN = RW.VBELN AND MANDT = RW.MANDT ) AS DECIMAL(23,5) )
+                END
+              ) * (
+                RW.ukurs_today *
+                ( CASE WHEN COALESCE(RW.tfact_today, 1) = 0 THEN 1 ELSE COALESCE(RW.tfact_today, 1) END ) /
+                ( CASE WHEN COALESCE(RW.ffact_today, 1) = 0 THEN 1 ELSE COALESCE(RW.ffact_today, 1) END )
+              )
+
+            ELSE CAST(0 AS DECIMAL(23,5))
+          END AS usd_raw
+        FROM rows_with_rates AS RW
+      ),
+      /* >>> CHANGED: expose numeric sort helpers for proper ascending sort <<< */
+      monthly_totals AS (
+        SELECT
+          TO_NVARCHAR( yyyy )                         AS YEAR,          -- display
+          'Q' || TO_NVARCHAR( CAST( CEIL( mm / 3 ) AS INTEGER ) ) AS QUATER, -- display
+          CASE mm
+            WHEN  1 THEN 'JAN'
+            WHEN  2 THEN 'FEB'
+            WHEN  3 THEN 'MAR'
+            WHEN  4 THEN 'APR'
+            WHEN  5 THEN 'MAY'
+            WHEN  6 THEN 'JUNE'
+            WHEN  7 THEN 'JULY'
+            WHEN  8 THEN 'AUG'
+            WHEN  9 THEN 'SEP'
+            WHEN 10 THEN 'OCT'
+            WHEN 11 THEN 'NOV'
+            WHEN 12 THEN 'DEC'
+            ELSE ''
+          END                                         AS MONTH,        -- display
+          source_mill                                 AS SOURCE_MILL,
+          type_of_sales                               AS TYPE_OF_SALES,
+          product_category                            AS PRODUCT_CATEGORY,
+          SUM( quantity_raw )                         AS quantity_month,
+          SUM( usd_raw )                              AS usd_month,
+          (yyyy * 100 + mm)                           AS ym_key,       -- still useful
+          /* NEW: numeric sort keys */
+          yyyy                                        AS year_num,
+          CEIL( mm / 3 )                              AS quarter_num,
+          mm                                          AS month_num
+        FROM base_rows_usd
+        GROUP BY yyyy, qtr, mm, source_mill, type_of_sales, product_category
+      )
+
+      SELECT
+        mt.YEAR,
+        mt.QUATER,
+        mt.MONTH,
+        mt.SOURCE_MILL,
+        mt.TYPE_OF_SALES,
+        mt.PRODUCT_CATEGORY,
+        TO_NVARCHAR(
+          COALESCE(
+            SUM( mt.quantity_month )
+            OVER ( PARTITION BY mt.PRODUCT_CATEGORY,mt.year_num
+                   ORDER BY  mt.month_num
+                   ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ),
+            0
+          )
+        ) AS QUANTITY,
+        TO_NVARCHAR(
+          ROUND(
+            COALESCE(
+              SUM( mt.usd_month )
+              OVER ( PARTITION BY mt.PRODUCT_CATEGORY
+                     ORDER BY mt.ym_key
+                     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW ),
+              0
+            ),
+            2
+          )
+        ) AS USD
+      FROM monthly_totals AS mt
+      /* >>> CHANGED: strict ascending by Year -> Quarter -> Month <<< */
+      ORDER BY
+        mt.year_num ASC,
+        mt.quarter_num ASC,
+        mt.month_num ASC;
+
+  ENDMETHOD.
+
+
+  METHOD sales_invoice
+      BY DATABASE PROCEDURE
+      FOR HDB
+      LANGUAGE SQLSCRIPT
+      OPTIONS READ-ONLY
+      USING
+        vbrk vbrp
+        vbfa
+        vbak vbap
+        vbpa kna1
+        likp lips
+        prcd_elements
+        tcurr.
+
+    DECLARE dt_from      DATE;
+    DECLARE dt_to        DATE;
+    DECLARE lv_has_years INTEGER;
+
+    /* Date range defaults */
+    dt_from := CASE
+      WHEN :iv_date_from = '00000000'
+        THEN TO_DATE( TO_NVARCHAR( YEAR(CURRENT_DATE) ) || '0101', 'YYYYMMDD' )
+      ELSE TO_DATE( :iv_date_from, 'YYYYMMDD' )
+    END;
+
+    dt_to := CASE
+      WHEN :iv_date_to = '00000000'
+        THEN CURRENT_DATE
+      ELSE TO_DATE( :iv_date_to, 'YYYYMMDD' )
+    END;
+
+    SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END INTO lv_has_years FROM :it_years;
+
+    rt_invoice_data =
+      WITH inv_item AS (
+        /* Billing header + item, restricted by bukrs/date/years */
+        SELECT
+          A.MANDT,
+          A.BUKRS,
+          A.VBELN                         AS BILL_NO,
+          TO_DATE(A.FKDAT,'YYYYMMDD')     AS BILL_DATE,
+          A.WAERK                         AS CURRENCY,
+          A.KNUMV                         AS KNUMV,       /* pricing number (PRCD_ELEMENTS) */
+          B.POSNR                         AS BILL_ITEM,
+          B.VGBEL                         AS VGBEL_DELIV, /* delivery ref if delivery-related billing */
+          B.VGPOS                         AS VGPOS_DELIV,
+          B.FKIMG                         AS BILL_QTY     /* QUANTITY directly from VBRP-FKIMG */
+        FROM VBRK A
+        INNER JOIN VBRP B
+          ON  A.MANDT = B.MANDT
+          AND A.VBELN = B.VBELN
+        WHERE ( :iv_bukrs = '' OR A.BUKRS = :iv_bukrs )
+          AND (
+                ( lv_has_years = 0 AND TO_DATE(A.FKDAT,'YYYYMMDD') BETWEEN dt_from AND dt_to )
+             OR ( lv_has_years = 1 AND YEAR(TO_DATE(A.FKDAT,'YYYYMMDD')) IN ( SELECT zyear FROM :it_years ) )
+          )
+      ),
+
+      /* Preceding Sales Order for the invoice (VBFA preceding type 'C') */
+      so_from_inv AS (
+        SELECT
+          F.MANDT,
+          F.VBELN        AS BILL_NO,
+          MIN(F.VBELV)   AS SO_NO,
+          MIN(F.POSNV)   AS SO_ITEM
+        FROM VBFA F
+        WHERE F.VBELN IN ( SELECT BILL_NO FROM inv_item )
+          AND F.VBTYP_V = 'C'
+        GROUP BY F.MANDT, F.VBELN
+      ),
+
+      /* Preceding Contract for the SO (VBFA preceding type 'G') */
+      contract_from_so AS (
+        SELECT
+          F.MANDT,
+          F.VBELN        AS SO_NO,
+          MIN(F.VBELV)   AS CONTRACT_NO,
+          MIN(F.POSNV)   AS CONTRACT_ITEM_NO
+        FROM VBFA F
+        WHERE F.VBELN IN ( SELECT SO_NO FROM so_from_inv )
+          AND F.VBTYP_V = 'G'
+        GROUP BY F.MANDT, F.VBELN
+      ),
+
+      /* Delivery for invoice:
+         1) Prefer VBRP.VGBEL
+         2) Else VBFA preceding type 'J' (Delivery) */
+      deliv_from_inv AS (
+        SELECT
+          I.MANDT,
+          I.BILL_NO,
+          COALESCE( I.VGBEL_DELIV,
+                    ( SELECT MIN(F.VBELV)
+                      FROM VBFA F
+                      WHERE F.MANDT = I.MANDT
+                        AND F.VBELN = I.BILL_NO
+                        AND F.VBTYP_V = 'J' ) ) AS DO_NO
+        FROM inv_item I
+      ),
+
+      /* Ship-to party at billing header */
+      shipto_name AS (
+        SELECT
+          P.MANDT,
+          P.VBELN           AS BILL_NO,
+          COALESCE(K.NAME1,'') AS SHIP_TO_NAME
+        FROM VBPA P
+        LEFT JOIN KNA1 K
+          ON  K.MANDT = P.MANDT
+          AND K.KUNNR = P.KUNNR
+        WHERE P.PARVW = 'WE'
+          AND P.POSNR = '000000'
+      ),
+
+      /* Base rate: prefer PR00 else PB00; normalize by KPEIN */
+      base_rate AS (
+        SELECT
+          E.KNUMV,
+          E.KPOSN,
+          MAX(
+            CASE
+              WHEN E.KSCHL = 'PR00'
+              THEN CASE WHEN COALESCE(E.KPEIN,0) = 0 THEN E.KBETR ELSE E.KBETR / E.KPEIN END
+            END
+          ) AS RATE_PR00,
+          MAX(
+            CASE
+              WHEN E.KSCHL = 'PB00'
+              THEN CASE WHEN COALESCE(E.KPEIN,0) = 0 THEN E.KBETR ELSE E.KBETR / E.KPEIN END
+            END
+          ) AS RATE_PB00
+        FROM PRCD_ELEMENTS E
+        WHERE E.KSCHL IN ('PR00','PB00')
+        GROUP BY E.KNUMV, E.KPOSN
+      ),
+
+      item_rate AS (
+        SELECT
+          KNUMV, KPOSN,
+          COALESCE(RATE_PR00, RATE_PB00, 0) AS RATE_PER_UNIT
+        FROM base_rate
+      ),
+
+      /* VAT (MWST) only */
+      vat_amounts AS (
+        SELECT
+          E.KNUMV,
+          E.KPOSN,
+          SUM(E.KWERT) AS VAT_VALUE
+        FROM PRCD_ELEMENTS E
+        WHERE E.KSCHL = 'MWST'
+        GROUP BY E.KNUMV, E.KPOSN
+      ),
+
+      /* Base value = first condition by STUNR (ascending) per item */
+      base_value_ordered AS (
+        SELECT
+          E.KNUMV,
+          E.KPOSN,
+          E.KWERT,
+          ROW_NUMBER() OVER (PARTITION BY E.KNUMV, E.KPOSN ORDER BY E.STUNR ASC) AS RN
+        FROM PRCD_ELEMENTS E
+      ),
+      base_value AS (
+        SELECT
+          KNUMV,
+          KPOSN,
+          KWERT AS BASIC_VALUE
+        FROM base_value_ordered
+        WHERE RN = 1
+      ),
+
+      /* Year/Month from AUDAT (Contract preferred, else SO) */
+      doc_dates AS (
+        SELECT
+          S.MANDT,
+          S.BILL_NO,
+          COALESCE(
+            ( SELECT TO_DATE(VK.AUDAT,'YYYYMMDD')
+              FROM VBAK VK
+              WHERE VK.MANDT = C.MANDT AND VK.VBELN = C.CONTRACT_NO ),
+            ( SELECT TO_DATE(VS.AUDAT,'YYYYMMDD')
+              FROM VBAK VS
+              WHERE VS.MANDT = S.MANDT AND VS.VBELN = S.SO_NO )
+          ) AS SRC_AUDAT
+        FROM so_from_inv S
+        LEFT JOIN contract_from_so C
+          ON C.MANDT = S.MANDT
+         AND C.SO_NO = S.SO_NO
+      ),
+
+      /* VBAP for contract & SO items (kept for material reference) */
+      vbap_contract AS (
+        SELECT
+          C.MANDT,
+          C.CONTRACT_NO,
+          C.CONTRACT_ITEM_NO,
+          P.MATNR AS MATNR_CONTRACT,
+          P.ZMENG AS QTY_CONTRACT
+        FROM contract_from_so C
+        LEFT JOIN VBAP P
+          ON  P.MANDT = C.MANDT
+          AND P.VBELN = C.CONTRACT_NO
+          AND P.POSNR = C.CONTRACT_ITEM_NO
+      ),
+
+      vbap_so AS (
+        SELECT
+          S.MANDT,
+          S.SO_NO,
+          S.SO_ITEM,
+          P.MATNR AS MATNR_SO,
+          P.ZMENG AS QTY_SO
+        FROM so_from_inv S
+        LEFT JOIN VBAP P
+          ON  P.MANDT = S.MANDT
+          AND P.VBELN = S.SO_NO
+          AND P.POSNR = S.SO_ITEM
+      ),
+
+      /* Vehicle number from LIKP by delivery */
+      vehicle AS (
+        SELECT
+          D.MANDT,
+          D.DO_NO,
+          MAX(K.TRAID) AS VEHICLE_NUMBER
+        FROM deliv_from_inv D
+        LEFT JOIN LIKP K
+          ON  K.MANDT = D.MANDT
+          AND K.VBELN = D.DO_NO
+        GROUP BY D.MANDT, D.DO_NO
+      ),
+
+      /* Currency conversion rates (document date + fallback to latest till today) */
+      rates_for_item AS (
+        SELECT
+          I.MANDT,
+          I.BILL_NO,
+          I.BILL_ITEM,
+          I.CURRENCY AS doc_curr,
+          I.BILL_DATE,
+
+          /* doc-date rate row */
+          ( SELECT UKURS FROM TCURR
+            WHERE MANDT = I.MANDT AND KURST = 'M'
+              AND FCURR = I.CURRENCY AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = I.MANDT AND KURST = 'M'
+                      AND FCURR = I.CURRENCY AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= I.BILL_DATE )
+          ) AS ukurs_doc,
+          ( SELECT FFACT FROM TCURR
+            WHERE MANDT = I.MANDT AND KURST = 'M'
+              AND FCURR = I.CURRENCY AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = I.MANDT AND KURST = 'M'
+                      AND FCURR = I.CURRENCY AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= I.BILL_DATE )
+          ) AS ffact_doc,
+          ( SELECT TFACT FROM TCURR
+            WHERE MANDT = I.MANDT AND KURST = 'M'
+              AND FCURR = I.CURRENCY AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = I.MANDT AND KURST = 'M'
+                      AND FCURR = I.CURRENCY AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= I.BILL_DATE )
+          ) AS tfact_doc,
+
+          /* latest rate till today (fallback) */
+          ( SELECT UKURS FROM TCURR
+            WHERE MANDT = I.MANDT AND KURST = 'M'
+              AND FCURR = I.CURRENCY AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = I.MANDT AND KURST = 'M'
+                      AND FCURR = I.CURRENCY AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= CURRENT_DATE )
+          ) AS ukurs_today,
+          ( SELECT FFACT FROM TCURR
+            WHERE MANDT = I.MANDT AND KURST = 'M'
+              AND FCURR = I.CURRENCY AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = I.MANDT AND KURST = 'M'
+                      AND FCURR = I.CURRENCY AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= CURRENT_DATE )
+          ) AS ffact_today,
+          ( SELECT TFACT FROM TCURR
+            WHERE MANDT = I.MANDT AND KURST = 'M'
+              AND FCURR = I.CURRENCY AND TCURR = 'USD'
+              AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) =
+                  ( SELECT MAX( TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) )
+                    FROM TCURR
+                    WHERE MANDT = I.MANDT AND KURST = 'M'
+                      AND FCURR = I.CURRENCY AND TCURR = 'USD'
+                      AND TO_DATE( TO_NVARCHAR( 99999999 - GDATU ), 'YYYYMMDD' ) <= CURRENT_DATE )
+          ) AS tfact_today
+        FROM inv_item I
+      ),
+
+      /* Last change date from VBRK-AEDAT over the same invoice population */
+      last_aedat AS (
+        SELECT
+          MAX( TO_DATE(V.AEDAT,'YYYYMMDD') ) AS LAST_AEDAT
+        FROM VBRK V
+        WHERE V.VBELN IN ( SELECT BILL_NO FROM inv_item )
+      )
+
+      SELECT
+        /* ---- EVERYTHING returned as NVARCHAR(5000) to match ABAP STRING ---- */
+
+        /* Year / Month / Quarter from AUDAT (Contract -> SO) */
+        CAST(
+          CASE WHEN DD.SRC_AUDAT IS NOT NULL
+               THEN LPAD( CAST( YEAR(DD.SRC_AUDAT) AS NVARCHAR(4) ), 4, '0' )
+               ELSE '' END AS NVARCHAR(5000) )                                        AS ZYEAR,
+
+        CAST(
+          CASE WHEN DD.SRC_AUDAT IS NOT NULL
+               THEN 'Q' || CAST( CEIL( MONTH(DD.SRC_AUDAT) / 3 ) AS NVARCHAR(1) )
+               ELSE '' END AS NVARCHAR(5000) )                                        AS QUARTER,
+
+        CAST(
+          CASE WHEN DD.SRC_AUDAT IS NOT NULL
+               THEN UPPER(TO_VARCHAR(DD.SRC_AUDAT, 'MON'))
+               ELSE '' END AS NVARCHAR(5000) )                                        AS ZMONTH,
+
+        CAST( COALESCE(SN.SHIP_TO_NAME,'') AS NVARCHAR(5000) )                         AS SHIP_TO_NAME,
+
+        CAST( COALESCE(CS.CONTRACT_NO,'') AS NVARCHAR(5000) )                          AS CONTRACT_NO,
+        CAST( COALESCE(SO.SO_NO,'')       AS NVARCHAR(5000) )                          AS SO_NO,
+        CAST( I.BILL_NO                   AS NVARCHAR(5000) )                          AS BILL_NO,
+        CAST( TO_NVARCHAR( I.BILL_DATE, 'DD-MM-YYYY' ) AS NVARCHAR(5000) )             AS BILL_DATE,
+
+        CAST( COALESCE(DO.DO_NO,'')       AS NVARCHAR(5000) )                          AS DELIVERY_NO,
+
+        CAST( COALESCE(VC.MATNR_CONTRACT, VS.MATNR_SO, '') AS NVARCHAR(5000) )         AS MATERIAL,
+
+        CAST( LPAD( CAST( COALESCE(CS.CONTRACT_ITEM_NO,'') AS NVARCHAR(6) ), 6, '0')
+              AS NVARCHAR(5000) )                                                      AS CONTRACT_ITEM_NO,
+
+        CAST( I.CURRENCY AS NVARCHAR(5000) )                                           AS CURRENCY,
+
+        /* BASIC_RATE in USD */
+        CAST(
+          TO_NVARCHAR(
+            ROUND(
+              CASE
+                WHEN R.doc_curr = 'USD' THEN COALESCE(RT.RATE_PER_UNIT,0)
+                WHEN COALESCE(R.ukurs_doc,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR' THEN COALESCE(RT.RATE_PER_UNIT,0) / 10
+                         ELSE COALESCE(RT.RATE_PER_UNIT,0) END ) *
+                  ( R.ukurs_doc *
+                    ( CASE WHEN COALESCE(R.tfact_doc,1) = 0 THEN 1 ELSE COALESCE(R.tfact_doc,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_doc,1) = 0 THEN 1 ELSE COALESCE(R.ffact_doc,1) END ) )
+                WHEN COALESCE(R.ukurs_today,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR' THEN COALESCE(RT.RATE_PER_UNIT,0) / 10
+                         ELSE COALESCE(RT.RATE_PER_UNIT,0) END ) *
+                  ( R.ukurs_today *
+                    ( CASE WHEN COALESCE(R.tfact_today,1) = 0 THEN 1 ELSE COALESCE(R.tfact_today,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_today,1) = 0 THEN 1 ELSE COALESCE(R.ffact_today,1) END ) )
+                ELSE 0
+              END, 2
+            )
+          ) AS NVARCHAR(5000)
+        ) AS BASIC_RATE,
+
+        CAST( COALESCE(VH.VEHICLE_NUMBER,'') AS NVARCHAR(5000) )                       AS VEHICLE_NUMBER,
+
+        /* QUANTITY (unchanged) */
+        CAST( TO_NVARCHAR( COALESCE(I.BILL_QTY, 0) ) AS NVARCHAR(5000) )               AS QUANTITY,
+
+        /* BASIC_VALUE in USD */
+        CAST(
+          TO_NVARCHAR(
+            ROUND(
+              CASE
+                WHEN R.doc_curr = 'USD' THEN COALESCE(BV.BASIC_VALUE,0)
+                WHEN COALESCE(R.ukurs_doc,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR' THEN COALESCE(BV.BASIC_VALUE,0) / 10
+                         ELSE COALESCE(BV.BASIC_VALUE,0) END ) *
+                  ( R.ukurs_doc *
+                    ( CASE WHEN COALESCE(R.tfact_doc,1) = 0 THEN 1 ELSE COALESCE(R.tfact_doc,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_doc,1) = 0 THEN 1 ELSE COALESCE(R.ffact_doc,1) END ) )
+                WHEN COALESCE(R.ukurs_today,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR' THEN COALESCE(BV.BASIC_VALUE,0) / 10
+                         ELSE COALESCE(BV.BASIC_VALUE,0) END ) *
+                  ( R.ukurs_today *
+                    ( CASE WHEN COALESCE(R.tfact_today,1) = 0 THEN 1 ELSE COALESCE(R.tfact_today,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_today,1) = 0 THEN 1 ELSE COALESCE(R.ffact_today,1) END ) )
+                ELSE 0
+              END, 2
+            )
+          ) AS NVARCHAR(5000)
+        ) AS BASIC_VALUE,
+
+        /* VAT_VALUE in USD */
+        CAST(
+          TO_NVARCHAR(
+            ROUND(
+              CASE
+                WHEN R.doc_curr = 'USD' THEN COALESCE(VA.VAT_VALUE,0)
+                WHEN COALESCE(R.ukurs_doc,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR' THEN COALESCE(VA.VAT_VALUE,0) / 10
+                         ELSE COALESCE(VA.VAT_VALUE,0) END ) *
+                  ( R.ukurs_doc *
+                    ( CASE WHEN COALESCE(R.tfact_doc,1) = 0 THEN 1 ELSE COALESCE(R.tfact_doc,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_doc,1) = 0 THEN 1 ELSE COALESCE(R.ffact_doc,1) END ) )
+                WHEN COALESCE(R.ukurs_today,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR' THEN COALESCE(VA.VAT_VALUE,0) / 10
+                         ELSE COALESCE(VA.VAT_VALUE,0) END ) *
+                  ( R.ukurs_today *
+                    ( CASE WHEN COALESCE(R.tfact_today,1) = 0 THEN 1 ELSE COALESCE(R.tfact_today,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_today,1) = 0 THEN 1 ELSE COALESCE(R.ffact_today,1) END ) )
+                ELSE 0
+              END, 2
+            )
+          ) AS NVARCHAR(5000)
+        ) AS VAT_VALUE,
+
+        /* TOTAL_INV_VALUE in USD (base + VAT) */
+        CAST(
+          TO_NVARCHAR(
+            ROUND(
+              CASE
+                WHEN R.doc_curr = 'USD' THEN COALESCE(BV.BASIC_VALUE,0) + COALESCE(VA.VAT_VALUE,0)
+                WHEN COALESCE(R.ukurs_doc,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR'
+                         THEN ( COALESCE(BV.BASIC_VALUE,0) + COALESCE(VA.VAT_VALUE,0) ) / 10
+                         ELSE   ( COALESCE(BV.BASIC_VALUE,0) + COALESCE(VA.VAT_VALUE,0) ) END ) *
+                  ( R.ukurs_doc *
+                    ( CASE WHEN COALESCE(R.tfact_doc,1) = 0 THEN 1 ELSE COALESCE(R.tfact_doc,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_doc,1) = 0 THEN 1 ELSE COALESCE(R.ffact_doc,1) END ) )
+                WHEN COALESCE(R.ukurs_today,0) > 0 THEN
+                  ( CASE WHEN R.doc_curr = 'OMR'
+                         THEN ( COALESCE(BV.BASIC_VALUE,0) + COALESCE(VA.VAT_VALUE,0) ) / 10
+                         ELSE   ( COALESCE(BV.BASIC_VALUE,0) + COALESCE(VA.VAT_VALUE,0) ) END ) *
+                  ( R.ukurs_today *
+                    ( CASE WHEN COALESCE(R.tfact_today,1) = 0 THEN 1 ELSE COALESCE(R.tfact_today,1) END ) /
+                    ( CASE WHEN COALESCE(R.ffact_today,1) = 0 THEN 1 ELSE COALESCE(R.ffact_today,1) END ) )
+                ELSE 0
+              END, 2
+            )
+          ) AS NVARCHAR(5000)
+        ) AS TOTAL_INV_VALUE,
+
+        CAST( COALESCE(LP.ZZNF_PIECES, '') AS NVARCHAR(5000) )                          AS NO_OF_PIECES,
+
+        /* LAST_DATE from VBRK-AEDAT */
+        CAST( TO_NVARCHAR( LA.LAST_AEDAT, 'DD-MM-YYYY' ) AS NVARCHAR(5000) )            AS LAST_DATE
+
+      FROM inv_item                    AS I
+      LEFT JOIN so_from_inv            AS SO
+        ON  SO.MANDT   = I.MANDT
+        AND SO.BILL_NO = I.BILL_NO
+      LEFT JOIN contract_from_so       AS CS
+        ON  CS.MANDT   = SO.MANDT
+        AND CS.SO_NO   = SO.SO_NO
+      LEFT JOIN deliv_from_inv         AS DO
+        ON  DO.MANDT   = I.MANDT
+        AND DO.BILL_NO = I.BILL_NO
+      LEFT JOIN shipto_name            AS SN
+        ON  SN.MANDT   = I.MANDT
+        AND SN.BILL_NO = I.BILL_NO
+      LEFT JOIN doc_dates              AS DD
+        ON  DD.MANDT   = I.MANDT
+        AND DD.BILL_NO = I.BILL_NO
+      LEFT JOIN vbap_contract          AS VC
+        ON  VC.MANDT        = CS.MANDT
+        AND VC.CONTRACT_NO  = CS.CONTRACT_NO
+        AND VC.CONTRACT_ITEM_NO = CS.CONTRACT_ITEM_NO
+      LEFT JOIN vbap_so                AS VS
+        ON  VS.MANDT   = SO.MANDT
+        AND VS.SO_NO   = SO.SO_NO
+        AND VS.SO_ITEM = SO.SO_ITEM
+      LEFT JOIN vehicle                AS VH
+        ON  VH.MANDT   = DO.MANDT
+        AND VH.DO_NO   = DO.DO_NO
+
+      /* Direct join to LIPS for the exact delivery item */
+      LEFT JOIN LIPS AS LP
+        ON LP.MANDT = I.MANDT
+       AND LP.VBELN = DO.DO_NO
+       AND LP.POSNR = I.VGPOS_DELIV
+
+      /* Values in doc currency (sources) */
+      LEFT JOIN vat_amounts            AS VA
+        ON  VA.KNUMV   = I.KNUMV
+        AND VA.KPOSN   = I.BILL_ITEM
+      LEFT JOIN base_value             AS BV
+        ON  BV.KNUMV   = I.KNUMV
+        AND BV.KPOSN   = I.BILL_ITEM
+      LEFT JOIN item_rate              AS RT
+        ON  RT.KNUMV   = I.KNUMV
+        AND RT.KPOSN   = I.BILL_ITEM
+
+      /* Rates for USD conversion */
+      LEFT JOIN rates_for_item         AS R
+        ON  R.MANDT     = I.MANDT
+        AND R.BILL_NO   = I.BILL_NO
+        AND R.BILL_ITEM = I.BILL_ITEM
+
+      /* Cross join for the global LAST_AEDAT over the result set */
+      CROSS JOIN last_aedat            AS LA
+
+      ORDER BY
+        CASE WHEN DD.SRC_AUDAT IS NULL THEN 9999 ELSE YEAR(DD.SRC_AUDAT) END ASC,
+        CASE WHEN DD.SRC_AUDAT IS NULL THEN 99   ELSE MONTH(DD.SRC_AUDAT) END ASC,
+        I.BILL_NO, I.BILL_ITEM;
+
+  ENDMETHOD.
+
+METHOD sales_rank
+  BY DATABASE PROCEDURE
+  FOR HDB
+  LANGUAGE SQLSCRIPT
+  OPTIONS READ-ONLY
+  USING vbrk vbrp vbpa kna1 t005t.
+
+  /* ----------------------------
+     Parameters & defaults
+     ---------------------------- */
+  DECLARE lv_dim    NVARCHAR(10) := UPPER(:iv_dimension);   -- 'COUNTRY' or 'CUSTOMER'
+  DECLARE lv_sortby NVARCHAR(10) := UPPER(:iv_sort_by);     -- 'USD' or 'QTY'
+  DECLARE lv_topn   INTEGER      := COALESCE(:iv_topn, 0);
+  DECLARE lv_botn   INTEGER      := COALESCE(:iv_bottomn, 0);
+
+  DECLARE dt_from DATE;
+  DECLARE dt_to   DATE;
+
+  /* Country text language (T005T) */
+  DECLARE lv_spras NVARCHAR(1) := 'E';
+
+  /* Default: last 5 years until today when '00000000' */
+  dt_from := CASE
+               WHEN :iv_date_from = '00000000'
+                 THEN TO_DATE( TO_NVARCHAR( YEAR(CURRENT_DATE) - 5 ) || '0101', 'YYYYMMDD' )
+               ELSE TO_DATE( :iv_date_from, 'YYYYMMDD' )
+             END;
+
+  dt_to := CASE
+             WHEN :iv_date_to = '00000000'
+               THEN CURRENT_DATE
+             ELSE TO_DATE( :iv_date_to, 'YYYYMMDD' )
+           END;
+
+  /* ----------------------------
+     Main query pipeline
+     ---------------------------- */
+  rt_rank_data =
+    WITH inv_item AS (
+      /* Billing header + item; Ship-to from header OR item partner (WE) */
+      SELECT
+        k.mandt,
+        k.bukrs,
+        k.vbeln,
+        k.fkdat,
+        k.waerk,
+        k.kunag                                        AS sold_to_hdr,     -- Sold-to (header)
+        COALESCE(bp_we_hdr.kunnr, bp_we_itm.kunnr)     AS ship_to_final,   -- Ship-to (prefer header, else item)
+        it.posnr                                       AS posnr,
+        it.fkimg,
+        it.netwr
+      FROM vbrk AS k
+      INNER JOIN vbrp AS it
+        ON it.vbeln = k.vbeln
+
+      /* Ship-to at header (POSNR = '000000') */
+      LEFT JOIN vbpa AS bp_we_hdr
+        ON bp_we_hdr.vbeln = k.vbeln
+       AND bp_we_hdr.parvw = 'WE'
+       AND bp_we_hdr.posnr = '000000'
+
+      /* Ship-to at item (POSNR = VBRP-POSNR) */
+      LEFT JOIN vbpa AS bp_we_itm
+        ON bp_we_itm.vbeln = k.vbeln
+       AND bp_we_itm.parvw = 'WE'
+       AND bp_we_itm.posnr = it.posnr
+
+      WHERE k.fkdat BETWEEN :dt_from AND :dt_to
+        AND ( :iv_bukrs IS NULL OR :iv_bukrs = '' OR k.bukrs = :iv_bukrs )
+    ),
+
+    /* Enrich with customer names and country codes */
+    dim_enriched AS (
+      SELECT
+        i.*,
+        st.land1   AS land1_soldto,
+        sh.land1   AS land1_shipto,
+        st.name1   AS sold_to_name,
+        sh.name1   AS ship_to_name
+      FROM inv_item i
+      LEFT JOIN kna1 AS st
+        ON st.kunnr = i.sold_to_hdr
+      LEFT JOIN kna1 AS sh
+        ON sh.kunnr = i.ship_to_final
+    ),
+
+    /* Country texts */
+    country_texts AS (
+      SELECT
+        t.land1 AS land1,
+        t.landx AS country_name
+      FROM t005t AS t
+      WHERE t.spras = :lv_spras
+    ),
+
+    dim_with_country_name AS (
+      SELECT
+        d.*,
+        ct_st.country_name AS country_name_st,
+        ct_sh.country_name AS country_name_sh
+      FROM dim_enriched d
+      LEFT JOIN country_texts AS ct_st
+        ON ct_st.land1 = d.land1_soldto
+      LEFT JOIN country_texts AS ct_sh
+        ON ct_sh.land1 = d.land1_shipto
+    ),
+
+    /* Project the active dimension BEFORE aggregation (use names) */
+    pre_dim AS (
+      SELECT
+        TO_NVARCHAR( YEAR(d.fkdat) ) AS zyear,
+        d.waerk                      AS waerk,
+
+        /* Dimension columns (sparse) as NAMES */
+        CASE
+          WHEN :lv_dim = 'COUNTRY'
+            THEN COALESCE(d.country_name_sh, d.country_name_st)  -- prefer Ship-to country
+          ELSE NULL
+        END AS country,
+
+        CASE
+          WHEN :lv_dim = 'CUSTOMER'
+            THEN d.sold_to_name
+          ELSE NULL
+        END AS sold_to,
+
+        CASE
+          WHEN :lv_dim = 'CUSTOMER'
+            THEN d.ship_to_name
+          ELSE NULL
+        END AS ship_to,
+
+        /* Measures at item level */
+        CAST(d.fkimg AS DECIMAL(15,3)) AS quantity,
+        CAST(d.netwr AS DECIMAL(23,2)) AS amount_local
+      FROM dim_with_country_name d
+    ),
+
+    /* Aggregate ONLY by the projected dimension columns */
+    agg AS (
+      SELECT
+        p.zyear,
+        p.waerk,
+        p.country,
+        p.sold_to,
+        p.ship_to,
+        CAST(SUM(p.quantity)      AS DECIMAL(15,3)) AS quantity,
+        CAST(SUM(p.amount_local)  AS DECIMAL(23,2)) AS amount_local
+      FROM pre_dim p
+      GROUP BY
+        p.zyear,
+        p.waerk,
+        p.country,
+        p.sold_to,
+        p.ship_to
+    ),
+
+    /* Currency -> USD (plug your conversion if needed) */
+    conv AS (
+      SELECT
+        a.zyear,
+        :lv_dim AS dimension,
+        a.country,
+        a.sold_to,
+        a.ship_to,
+        a.quantity,
+        CASE
+          WHEN a.waerk = 'USD' THEN a.amount_local
+          ELSE a.amount_local   -- TODO: replace with TCUR* conversion if required
+        END AS usd_value
+      FROM agg a
+    ),
+
+    /* Rank per Year (adds strict row numbers) */
+    ranked AS (
+      SELECT
+        c.zyear   AS year,
+        c.country AS country,
+        c.sold_to AS sold_to,
+        c.ship_to AS ship_to,
+        c.quantity,
+        c.usd_value,
+
+        /* RANK (for info only) */
+        CASE WHEN :lv_sortby = 'QTY'
+             THEN RANK() OVER (PARTITION BY c.zyear ORDER BY c.quantity DESC, c.usd_value DESC)
+             ELSE RANK() OVER (PARTITION BY c.zyear ORDER BY c.usd_value DESC, c.quantity DESC)
+        END AS rank_desc,
+        CASE WHEN :lv_sortby = 'QTY'
+             THEN RANK() OVER (PARTITION BY c.zyear ORDER BY c.quantity ASC,  c.usd_value ASC)
+             ELSE RANK() OVER (PARTITION BY c.zyear ORDER BY c.usd_value ASC,  c.quantity ASC)
+        END AS rank_asc,
+
+        /* STRICT row numbers -> used for filtering exactly N rows */
+        CASE WHEN :lv_sortby = 'QTY'
+             THEN ROW_NUMBER() OVER (PARTITION BY c.zyear ORDER BY c.quantity DESC, c.usd_value DESC, COALESCE(c.country,''), COALESCE(c.sold_to,''), COALESCE(c.ship_to,''))
+             ELSE ROW_NUMBER() OVER (PARTITION BY c.zyear ORDER BY c.usd_value DESC, c.quantity DESC, COALESCE(c.country,''), COALESCE(c.sold_to,''), COALESCE(c.ship_to,''))
+        END AS rowno_desc,
+        CASE WHEN :lv_sortby = 'QTY'
+             THEN ROW_NUMBER() OVER (PARTITION BY c.zyear ORDER BY c.quantity ASC,  c.usd_value ASC,  COALESCE(c.country,''), COALESCE(c.sold_to,''), COALESCE(c.ship_to,''))
+             ELSE ROW_NUMBER() OVER (PARTITION BY c.zyear ORDER BY c.usd_value ASC,  c.quantity ASC,  COALESCE(c.country,''), COALESCE(c.sold_to,''), COALESCE(c.ship_to,''))
+        END AS rowno_asc
+      FROM conv c
+    ),
+
+    /* Apply Top/Bottom using STRICT row numbers.
+       If both TopN and BottomN are 0 -> return ALL ranked rows. */
+    filtered AS (
+      SELECT *
+      FROM ranked
+      WHERE
+            ( :lv_topn  > 0 AND rowno_desc <= :lv_topn )
+        OR  ( :lv_botn  > 0 AND rowno_asc  <= :lv_botn )
+        OR  ( :lv_topn = 0  AND :lv_botn   = 0 )
+    ),
+
+    /* De-duplicate in case Top/Bottom overlap same key */
+    dedup AS (
+      SELECT f.*,
+             ROW_NUMBER() OVER (
+               PARTITION BY f.year, COALESCE(f.country,''), COALESCE(f.sold_to,''), COALESCE(f.ship_to,'')
+               ORDER BY f.rowno_desc, f.rowno_asc
+             ) AS keep
+      FROM filtered f
+    ),
+
+    /* Subset totals (per year) so % distribute across fetched rows */
+    totals_fetched AS (
+      SELECT
+        year,
+        SUM(quantity)  AS qty_total_fetched,
+        SUM(usd_value) AS usd_total_fetched
+      FROM dedup
+      WHERE keep = 1
+      GROUP BY year
+    )
+
+    /* Final projection -> STRING fields (NVARCHAR) */
+    SELECT
+      CAST(f.year AS NVARCHAR(10)) AS "ZYEAR",
+
+      /* COUNTRY only for COUNTRY dimension */
+      CASE WHEN :lv_dim = 'COUNTRY'
+           THEN COALESCE(f.country, '')
+           ELSE ''
+      END AS "COUNTRY",
+
+      /* SOLD-TO / SHIP-TO only for CUSTOMER dimension */
+      CASE WHEN :lv_dim = 'CUSTOMER'
+           THEN COALESCE(f.sold_to, '')
+           ELSE ''
+      END AS "SOLD_TO_PARTY",
+      CASE WHEN :lv_dim = 'CUSTOMER'
+           THEN COALESCE(f.ship_to, '')
+           ELSE ''
+      END AS "SHIP_TO_PARTY",
+
+      CAST(ROUND(f.quantity,  3) AS NVARCHAR(50)) AS "QUANTITY",
+
+      CAST(ROUND(
+             CASE WHEN tf.qty_total_fetched > 0
+                  THEN 100 * f.quantity / tf.qty_total_fetched
+                  ELSE 0
+             END
+           , 2) AS NVARCHAR(50)) AS "QUANTITY_PRC",
+
+      CAST(ROUND(f.usd_value, 2) AS NVARCHAR(50)) AS "USD_VALUE",
+
+      CAST(ROUND(
+             CASE WHEN tf.usd_total_fetched > 0
+                  THEN 100 * f.usd_value / tf.usd_total_fetched
+                  ELSE 0
+             END
+           , 2) AS NVARCHAR(50)) AS "USD_PRC",
+
+      /* Echo controlling parameters */
+      CAST(:lv_dim    AS NVARCHAR(20)) AS "DIMENSION",
+      CAST(:lv_sortby AS NVARCHAR(20)) AS "SORTBY",
+      CAST(:lv_topn   AS NVARCHAR(20)) AS "TOPN",
+      CAST(:lv_botn   AS NVARCHAR(20)) AS "BOTTOMN"
+
+    FROM dedup f
+    INNER JOIN totals_fetched tf ON tf.year = f.year
+    WHERE f.keep = 1
+
+    /* Order based on mode */
+    ORDER BY
+      f.year,
+      CASE
+        WHEN :lv_topn  > 0 AND :lv_botn = 0 THEN f.rowno_desc
+        WHEN :lv_botn  > 0 AND :lv_topn  = 0 THEN f.rowno_asc
+        /* If both or none specified, prefer desc row order */
+        ELSE f.rowno_desc
+      END;
+
+ENDMETHOD.
+
+
+ENDCLASS.

@@ -1,0 +1,19 @@
+
+{
+  "years": [
+    {
+      "year": 2025,
+      "rows": [
+        { "quarter": "Q1", "month": "Jan-2025", "quantity": 204350.6, "usd": 1000 },
+        { "quarter": "Q1", "month": "Feb-2025", "quantity": 213872.4, "usd": 2000 }
+      ]
+    },
+    {
+      "year": 2024,
+      "rows": [
+        { "quarter": "Q1", "month": "Jan-24", "quantity": 204350.6, "usd": 1000 },
+        { "quarter": "Q1", "month": "Feb-24", "quantity": 213872.4, "usd": 2000 }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZSD_SALES_OVERVIEW_SRV" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <Annotation Term="Core.SchemaVersion" String="1.0.0" xmlns="http://docs.oasis-open.org/odata/ns/edm"/>
+            <EntityType Name="CurrentYearOverview" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Year"/>
+                    <PropertyRef Name="Quater"/>
+                    <PropertyRef Name="Month"/>
+                </Key>
+                <Property Name="Year" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="YEAR" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Quater" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="QUATER" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Month" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="MONTH" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="SourceMill" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="SOURCE_MILL" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="TypeOfSales" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="TYPE_OF_SALES" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="ProductCategory" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="PRODUCT_CATEGORY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Quantity" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="QUANTITY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Usd" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="USD" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="HistoricalOverview" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Year"/>
+                    <PropertyRef Name="Quater"/>
+                    <PropertyRef Name="Month"/>
+                </Key>
+                <Property Name="Year" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="YEAR" sap:creatable="false" sap:updatable="false" sap:sortable="false"/>
+                <Property Name="Quater" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="QUATER" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Month" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="MONTH" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="SourceMill" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="SOURCE_MILL" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="TypeOfSales" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="TYPE_OF_SALES" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="ProductCategory" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="PRODUCT_CATEGORY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Quantity" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="QUANTITY" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Usd" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="USD" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityContainer Name="ZSD_SALES_OVERVIEW_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="CurrentYearOverviewSet" EntityType="ZSD_SALES_OVERVIEW_SRV.CurrentYearOverview" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="HistoricalOverviewSet" EntityType="ZSD_SALES_OVERVIEW_SRV.HistoricalOverview" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+            </EntityContainer>
+            <atom:link rel="self" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_SALES_OVERVIEW_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="https://jsisocd190:44300/sap/opu/odata/sap/ZSD_SALES_OVERVIEW_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

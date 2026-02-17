@@ -1,0 +1,274 @@
+<mvc:View controllerName="zsd_sales_ovw.controller.Historical"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:table="sap.ui.table"
+    xmlns="sap.m">
+
+    <App id="Historical">
+        <pages>
+            <Page id="historicalPage" title="" enableScrolling="false" showHeader="false">
+
+                <layout:DynamicSideContent id="histDSC" sideContentPosition="Begin" sideContentVisibility="ShowAboveS" equalSplit="false" showSideContent="true">
+
+                    <!-- ===================== MAIN CONTENT ===================== -->
+
+                    <layout:mainContent>
+                        <!-- Root FlexBox to control vertical fill -->
+                        <FlexBox direction="Column" fitContainer="true" class="sapUiSmallMargin">
+                            <!-- ===== Toolbar ===== -->
+                            <Toolbar design="Auto" class="sapUiSmallMarginBottom">
+                                <Button id="btnToggleMainHis" text="Filters" icon="sap-icon://menu2" type="Transparent" press=".onToggleMainContent" />
+                                <ToolbarSpacer />
+                                <Button id="btnHisCharts" text="Charts" icon="sap-icon://business-objects-experience" type="Transparent" press=".onOpenChartDialog"/>
+                                <Button text="Export to Excel" icon="sap-icon://excel-attachment" type="Transparent" press=".onExportExcel" />
+                            </Toolbar>
+
+                            <!-- ===== Token rows (do NOT grow) ===== -->
+                            <VBox id="tokenRowsHis" visible="{= !!${view>/filterChips}.length }" class="sapUiSmallMarginBottom">
+                                <!-- Row 1 -->
+                                <HBox renderType="Bare" visible="{= !!${view>/filterChipsTop}.length }">
+                                    <Text text="Selected:" class="sapUiTinyMarginEnd sapUiTinyMarginBegin" />
+                                    <Tokenizer id="histFilterTokensTop" editable="true" tokenDelete=".onFilterTokenDeleteHist" tokens="{ path: 'view>/filterChipsTop' }">
+                                        <Token key="{view>key}" text="{view>text}">
+                                            <customData>
+                                                <core:CustomData key="type" value="{view>type}" writeToDom="false"/>
+                                                <core:CustomData key="value" value="{view>value}" writeToDom="false"/>
+                                            </customData>
+                                        </Token>
+                                    </Tokenizer>
+                                </HBox>
+
+                                <!-- Row 2 -->
+                                <HBox renderType="Bare" visible="{= !!${view>/filterChipsBottom}.length }">
+                                    <Text text="" class="sapUiTinyMarginEnd sapUiTinyMarginBegin" />
+                                    <Tokenizer id="histFilterTokensBottom" editable="true" tokenDelete=".onFilterTokenDeleteHist" tokens="{ path: 'view>/filterChipsBottom' }">
+                                        <Token key="{view>key}" text="{view>text}">
+                                            <customData>
+                                                <core:CustomData key="type" value="{view>type}" writeToDom="false"/>
+                                                <core:CustomData key="value" value="{view>value}" writeToDom="false"/>
+                                            </customData>
+                                        </Token>
+                                    </Tokenizer>
+                                </HBox>
+                            </VBox>
+
+                            <!-- ====== YEAR STRIP: horizontal scroll, fills remaining height ====== -->
+                            <ScrollContainer width="100%" horizontal="true" vertical="false" class="HisMainScroll" focusable="false">
+                                <layoutData>
+                                    <!-- Let this container take all remaining page height -->
+                                    <FlexItemData growFactor="1" />
+                                </layoutData>
+
+                                <!-- A single row that never wraps -->
+                                <FlexBox id="yearsRow" direction="Row" wrap="NoWrap" alignItems="Stretch" justifyContent="Start" items="{ path: 'oGlobalModel>/HisDataFiltered/years' }">
+
+                                    <items>
+                                        <!-- Each YEAR CARD: fixed width, full height -->
+                                        <FlexBox direction="Column" class="sapUiSmallMarginEnd sapUiTinyMarginBottom" width="40rem">
+                                            <!-- Year title (no grow) -->
+                                            <Title text="{oGlobalModel>year}" textAlign="Center" class="HisYearTitle" level="H3" />
+
+                                            <!-- Inner vertical scroll that fills remaining height under the title -->
+                                            <ScrollContainer width="100%" height="{= ${device>/system/phone} ? '90%' : '85%' }" horizontal="false" vertical="true" class="HisCardScroll" focusable="false">
+                                                <layoutData>
+                                                    <FlexItemData growFactor="1" />
+                                                </layoutData>
+
+                                                <!-- ============================================================= -->
+                                                <!-- ===== REPLACEMENT: Expandable List with nested breakdown ==== -->
+                                                <!-- ============================================================= -->
+                                                <VBox width="100%">
+                                                    <!-- Header row to mimic table header -->
+                                                    <HBox class="sapUiTinyMarginBottom" alignItems="Center" width="100%">
+                                                        <Text text="" width="2rem" />
+                                                        <Text text="Quarter" width="4rem" />
+                                                        <Text text="Month" width="5rem" />
+                                                        <Text text="Quantity" width="6rem" />
+                                                        <Text text="USD VALUE" width="8rem" />
+                                                    </HBox>
+
+                                                    <!-- List with expandable rows -->
+                                                    <List mode="None" noDataText="No rows" items="{oGlobalModel>rows}" growing="true" growingThreshold="24" growingScrollToLoad="true">
+
+                                                        <CustomListItem type="Active">
+                                                            <!-- press=".onExpandRow" -->
+                                                            <VBox class="sapUiTinyMarginBottom" width="100%">
+                                                                <!-- Main row -->
+                                                                <HBox alignItems="Center" width="100%">
+                                                                    <!-- Expand/Collapse Button (icon toggles based on 'expanded') -->
+                                                                    <Button type="Transparent" width="2rem" press="onExpandRow" icon="{= ${oGlobalModel>expanded} ? 'sap-icon://slim-arrow-down' : 'sap-icon://slim-arrow-right' }" tooltip="Expand / Collapse" />
+
+                                                                    <Text text="{oGlobalModel>quarter}" width="4rem" />
+                                                                    <Text text="{oGlobalModel>month}" width="4rem" />
+
+                                                                    <Text text="{ path: 'oGlobalModel>quantity', formatter: '.formatShortNumber' }" tooltip="{ path: 'oGlobalModel>quantity', formatter: '.formatFullNumber' }" width="6rem" textAlign="Center" />
+
+                                                                    <Text text="{ path: 'oGlobalModel>usd', formatter: '.formatShortCurrency' }" tooltip="{ path: 'oGlobalModel>usd', formatter: '.formatFullCurrency' }" width="8rem" textAlign="Center" />
+
+                                                                </HBox>
+
+                                                                <!-- Nested breakdown table (visible when expanded) -->
+                                                                <VBox visible="{oGlobalModel>expanded}" class="sapUiSmallMarginTop sapUiSmallMarginBottom" width="100%">
+                                                                    <Table inset="false" width="100%" items="{oGlobalModel>breakdownTable}">
+                                                                        <columns>
+                                                                            <Column width="10rem">
+                                                                                <Text text="Source Mill" />
+                                                                            </Column>
+                                                                            <Column width="6rem">
+                                                                                <Text text="Product Category" />
+                                                                            </Column>
+                                                                            <Column width="6rem">
+                                                                                <Text text="Sales Type" />
+                                                                            </Column>
+                                                                            <Column width="8rem" hAlign="Center">
+                                                                                <Text text="Quantity" />
+                                                                            </Column>
+                                                                            <Column width="8rem" hAlign="Center">
+                                                                                <Text text="USD" />
+                                                                            </Column>
+                                                                        </columns>
+                                                                        <items>
+                                                                            <ColumnListItem>
+                                                                                <cells>
+                                                                                    <Text text="{oGlobalModel>sourceMill}" />
+                                                                                    <Text text="{oGlobalModel>productCategory}" />
+                                                                                    <Text text="{oGlobalModel>TypeOfSales}" />
+
+                                                                                    <Text text="{ path: 'oGlobalModel>quantity', formatter: '.formatShortNumber' }" tooltip="{ path: 'oGlobalModel>quantity', formatter: '.formatFullNumber' }" textAlign="Center" />
+
+                                                                                    <Text text="{ path: 'oGlobalModel>usd', formatter: '.formatShortCurrency' }" tooltip="{ path: 'oGlobalModel>usd', formatter: '.formatFullCurrency' }" textAlign="Center" />
+
+                                                                                </cells>
+                                                                            </ColumnListItem>
+                                                                        </items>
+                                                                    </Table>
+                                                                </VBox>
+                                                            </VBox>
+                                                        </CustomListItem>
+                                                    </List>
+                                                </VBox>
+                                                <!-- ============================================================= -->
+                                                <!-- =================== REPLACEMENT END ========================= -->
+                                                <!-- ============================================================= -->
+
+                                            </ScrollContainer>
+                                        </FlexBox>
+                                    </items>
+                                </FlexBox>
+                            </ScrollContainer>
+                        </FlexBox>
+                    </layout:mainContent>
+                    <!-- ===================== SIDE CONTENT (Filters) ===================== -->
+                    <layout:sideContent>
+                        <VBox class="sapUiSmallMargin">
+                            <Toolbar>
+                                <Title text="Filters" />
+                                <ToolbarSpacer />
+                                <Button id="btnToggleSideHis" text="Filters" type="Transparent" icon="sap-icon://menu2" press=".onToggleSideContent" />
+                            </Toolbar>
+
+                            <VBox class="sapUiSmallMarginTop">
+                                <HBox>
+                                    <Label text="Year" class="FilterTextStyle" labelFor="fYear" width="7rem" />
+                                    <MultiComboBox id="fYearHis" maxWidth="100%" width="5rem" items="{ path: 'oGlobalModel>/YearListHis' }">
+                                        <items>
+                                            <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                                        </items>
+                                    </MultiComboBox>
+                                </HBox>
+                                <HBox>
+                                    <Label text="Quarter" class="FilterTextStyle" labelFor="fQuarter" width="7rem" />
+                                    <MultiComboBox id="fQuarterHis" width="5rem" items="{ path: 'oGlobalModel>/QuarterListHis' }">
+                                        <items>
+                                            <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                                        </items>
+                                    </MultiComboBox>
+                                </HBox>
+                                <HBox>
+                                    <Label text="Month" class="FilterTextStyle" labelFor="fMonth" width="7rem" />
+                                    <MultiComboBox id="fMonthHis" width="5rem" items="{ path: 'oGlobalModel>/MonthListHis' }">
+                                        <items>
+                                            <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                                        </items>
+                                    </MultiComboBox>
+                                </HBox>
+                                <HBox>
+                                    <Label text="Source Mill" class="FilterTextStyle" labelFor="fSourceMill" width="7rem" />
+                                    <MultiComboBox id="fSourceMillHis" width="5rem" items="{ path: 'oGlobalModel>/SourceMillList' }">
+                                        <items>
+                                            <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                                        </items>
+                                    </MultiComboBox>
+                                </HBox>
+                                <HBox>
+                                    <Label text="Type of Sales" class="FilterTextStyle" labelFor="fTypeSales" width="7rem" />
+                                    <MultiComboBox id="fTypeSalesHis" width="5rem" items="{ path: 'oGlobalModel>/TypeOfSalesList' }">
+                                        <items>
+                                            <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                                        </items>
+                                    </MultiComboBox>
+                                </HBox>
+                                <HBox>
+                                    <Label text="Product Category" class="FilterTextStyle" labelFor="fProdCat" width="7rem" />
+                                    <MultiComboBox id="fProdCatHis" width="5rem" items="{ path: 'oGlobalModel>/ProductCategoryList' }">
+                                        <items>
+                                            <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                                        </items>
+                                    </MultiComboBox>
+                                </HBox>
+
+                                <HBox>
+                                    <Label text="Quantity" class="FilterTextStyle" width="4rem" />
+                                    <Select id="fQtyOpHis" width="4rem" forceSelection="false" selectedKey="{view>/qty/op}" tooltip="Operator">
+                                        <core:Item key="EQ" text=" = " />
+                                        <core:Item key="NE" text=" ≠ " />
+                                        <core:Item key="GT" text="> " />
+                                        <core:Item key="GE" text=" ≥ " />
+                                        <core:Item key="LT" text=" &lt; " />
+                                        <core:Item key="LE" text=" ≤ " />
+                                        <core:Item key="BT" text="Between" />
+                                    </Select>
+
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fQtyVal1His" width="4rem" type="Number" placeholder="{= ${view>/qty/op} === 'BT' ? 'From' : 'Value'}" value="{view>/qty/v1}" />
+
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fQtyVal2His" width="4rem" type="Number" placeholder="To" value="{view>/qty/v2}" visible="{= ${view>/qty/op} === 'BT' }" />
+                                </HBox>
+
+                                <HBox>
+                                    <Label text="Value" class="FilterTextStyle" width="4rem" />
+                                    <Select id="fUsdOpHis" width="4rem" forceSelection="false" selectedKey="{view>/usd/op}" tooltip="Operator">
+                                        <core:Item key="EQ" text=" = " />
+                                        <core:Item key="NE" text=" ≠ " />
+                                        <core:Item key="GT" text="> " />
+                                        <core:Item key="GE" text=" ≥ " />
+                                        <core:Item key="LT" text=" &lt; " />
+                                        <core:Item key="LE" text=" ≤ " />
+                                        <core:Item key="BT" text="Between" />
+                                    </Select>
+
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fUsdVal1His" width="4rem" type="Number" placeholder="{= ${view>/usd/op} === 'BT' ? 'From' : 'Value'}" value="{view>/usd/v1}" />
+
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fUsdVal2His" width="4rem" type="Number" placeholder="To" value="{view>/usd/v2}" visible="{= ${view>/usd/op} === 'BT' }" />
+                                </HBox>
+
+                                <HBox class="sapUiSmallMarginTop">
+                                    <Button text="Apply" class="sapUiSmallMarginRight" type="Emphasized" press=".onApplyFilters" />
+                                    <ToolbarSpacer />
+                                    <!-- <Button text="Fetch Data" class="FetchDataButton" type="Emphasized" press=".onFetchData" /> -->
+                                    <ToolbarSpacer />
+                                    <Button text="Reset" class="sapUiSmallMarginLeft" type="Transparent" press=".onResetFilters" />
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </layout:sideContent>
+                </layout:DynamicSideContent>
+            </Page>
+        </pages>
+    </App>
+</mvc:View>

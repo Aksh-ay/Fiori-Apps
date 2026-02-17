@@ -1,0 +1,272 @@
+<mvc:View controllerName="zsd_sales_rank.controller.CountryRank"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:layout="sap.ui.layout"
+    xmlns:table="sap.ui.table">
+
+    <App id="Overview">
+        <pages>
+            <Page id="overviewPage" enableScrolling="false" showHeader="false" showFooter="false">
+                <layout:DynamicSideContent id="dsc" sideContentPosition="Begin" sideContentVisibility="AlwaysShow" equalSplit="false" showSideContent="true">
+
+                    <!-- ========== LEFT: FILTERS ========== -->
+                    <layout:sideContent>
+                        <VBox class="sapUiSmallMargin">
+                            <Toolbar>
+                                <Title text="Filters" />
+                                <ToolbarSpacer />
+                                <Button id="btnToggleSide" text="Hide" type="Transparent" icon="sap-icon://menu2" press=".onToggleSideContent" />
+                            </Toolbar>
+
+                            <VBox class="sapUiSmallMarginTop">
+
+                                <!-- Country -->
+                                <HBox>
+                                    <Label text="Country" labelFor="fCountry" width="6rem" />
+                                    <MultiComboBox id="fCountry" width="12rem" items="{ path: 'oGlobalModel>/CountryList' }">
+                                        <items>
+                                            <core:Item key="{oGlobalModel>key}" text="{oGlobalModel>text}" />
+                                        </items>
+                                    </MultiComboBox>
+                                </HBox>
+
+                                <!-- Quantity -->
+                                <HBox>
+                                    <Label text="Quantity" width="6rem" />
+                                    <Select id="fQtyOp" width="5.5rem" forceSelection="false" selectedKey="{view>/qty/op}">
+                                        <core:Item key="EQ" text=" = " />
+                                        <core:Item key="NE" text=" ≠ " />
+                                        <core:Item key="GT" text="> " />
+                                        <core:Item key="GE" text=" ≥ " />
+                                        <core:Item key="LT" text=" &lt; " />
+                                        <core:Item key="LE" text=" ≤ " />
+                                        <core:Item key="BT" text="Between" />
+                                    </Select>
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fQtyVal1" width="4rem" type="Number" placeholder="{= ${view>/qty/op} === 'BT' ? 'From' : 'Value'}" value="{view>/qty/v1}" />
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fQtyVal2" width="4rem" type="Number" placeholder="To" value="{view>/qty/v2}" visible="{= ${view>/qty/op} === 'BT' }" />
+                                </HBox>
+
+                                <!-- USD -->
+                                <HBox>
+                                    <Label text="USD" width="6rem" />
+                                    <Select id="fUsdOp" width="5.5rem" forceSelection="false" selectedKey="{view>/usd/op}">
+                                        <core:Item key="EQ" text=" = " />
+                                        <core:Item key="NE" text=" ≠ " />
+                                        <core:Item key="GT" text="> " />
+                                        <core:Item key="GE" text=" ≥ " />
+                                        <core:Item key="LT" text=" &lt; " />
+                                        <core:Item key="LE" text=" ≤ " />
+                                        <core:Item key="BT" text="Between" />
+                                    </Select>
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fUsdVal1" width="4rem" type="Number" placeholder="{= ${view>/usd/op} === 'BT' ? 'From' : 'Value'}" value="{view>/usd/v1}" />
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fUsdVal2" width="4rem" type="Number" placeholder="To" value="{view>/usd/v2}" visible="{= ${view>/usd/op} === 'BT' }" />
+                                </HBox>
+
+                                <!-- Quantity % -->
+                                <HBox>
+                                    <Label text="Quantity %" width="6rem" />
+                                    <Select id="fPctOp" width="5.5rem" forceSelection="false" selectedKey="{view>/pct/op}">
+                                        <core:Item key="EQ" text=" = " />
+                                        <core:Item key="NE" text=" ≠ " />
+                                        <core:Item key="GT" text="> " />
+                                        <core:Item key="GE" text=" ≥ " />
+                                        <core:Item key="LT" text=" &lt; " />
+                                        <core:Item key="LE" text=" ≤ " />
+                                        <core:Item key="BT" text="Between" />
+                                    </Select>
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fPctVal1" width="4rem" type="Number" placeholder="{= ${view>/pct/op} === 'BT' ? 'From' : 'Value'}" value="{view>/pct/v1}" />
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fPctVal2" width="4rem" type="Number" placeholder="To" value="{view>/pct/v2}" visible="{= ${view>/pct/op} === 'BT' }" />
+                                </HBox>
+
+                                <!-- USD % -->
+                                <HBox>
+                                    <Label text="USD %" width="6rem" />
+                                    <Select id="fUsdPctOp" width="5.5rem" forceSelection="false" selectedKey="{view>/usdpct/op}">
+                                        <core:Item key="EQ" text=" = " />
+                                        <core:Item key="NE" text=" ≠ " />
+                                        <core:Item key="GT" text="> " />
+                                        <core:Item key="GE" text=" ≥ " />
+                                        <core:Item key="LT" text=" &lt; " />
+                                        <core:Item key="LE" text=" ≤ " />
+                                        <core:Item key="BT" text="Between" />
+                                    </Select>
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fUsdPctVal1" width="4rem" type="Number" placeholder="{= ${view>/usdpct/op} === 'BT' ? 'From' : 'Value'}" value="{view>/usdpct/v1}" />
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fUsdPctVal2" width="4rem" type="Number" placeholder="To" value="{view>/usdpct/v2}" visible="{= ${view>/usdpct/op} === 'BT' }" />
+                                </HBox>
+
+                                <!-- Rank -->
+                                <HBox>
+                                    <Label text="Rank" width="6rem" />
+                                    <Select id="fRankOp" width="5.5rem" forceSelection="false" selectedKey="{view>/rank/op}">
+                                        <core:Item key="EQ" text=" = " />
+                                        <core:Item key="NE" text=" ≠ " />
+                                        <core:Item key="GT" text="> " />
+                                        <core:Item key="GE" text=" ≥ " />
+                                        <core:Item key="LT" text=" &lt; " />
+                                        <core:Item key="LE" text=" ≤ " />
+                                        <core:Item key="BT" text="Between" />
+                                    </Select>
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fRankVal1" width="4rem" type="Number" placeholder="{= ${view>/rank/op} === 'BT' ? 'From' : 'Value'}" value="{view>/rank/v1}" />
+                                    <ToolbarSpacer width="0.5rem" />
+                                    <Input id="fRankVal2" width="4rem" type="Number" placeholder="To" value="{view>/rank/v2}" visible="{= ${view>/rank/op} === 'BT' }" />
+                                </HBox>
+
+                                <HBox class="sapUiSmallMarginTop">
+                                    <Button text="Reset" type="Transparent" press=".onResetFilters" />
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </layout:sideContent>
+
+                    <!-- ========== RIGHT: MAIN CONTENT ========== -->
+                    <layout:mainContent>
+                        <VBox class="sapUiSmallMargin" height="100%">
+
+                            <!-- HORIZONTAL SCROLL WRAPPER FOR TOOLBAR -->
+                            <!-- <ScrollContainer width="100%" height="auto" vertical="false" horizontal="true" focusable="false"> -->
+                                <OverflowToolbar id="mainToolbar" design="Auto" class="sapUiSmallMarginBottom" width="auto" height="auto">
+
+                                    <!-- Filters toggle -->
+                                    <Button id="btnToggleMain" text="{= ${device>/system/phone} ? '' : 'Filters'}" tooltip="Filters" type="Transparent" icon="sap-icon://menu2" press=".onToggleMainContent">
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </Button>
+
+                                    <!-- Spacer (optional: make it overflow if you want it to disappear) -->
+                                    <!-- <ToolbarSpacer>
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="Disappear" />
+                                        </layoutData>
+                                    </ToolbarSpacer> -->
+
+                                    <!-- Top/Bottom N -->
+                                    <Label text="{= ${device>/system/phone} ? 'N' : 'Show'}">
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </Label>
+
+                                    <Input id="inpRankCount" type="Number" width="{= ${device>/system/phone} ? '4rem' : '5rem'}" placeholder="{= ${device>/system/phone} ? 'Rank' : 'Rank'}" valueLiveUpdate="true" liveChange=".onRankCountLiveChange" change=".onRankCountChange">
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </Input>
+
+                                    <Label text="{= ${device>/system/phone} ? '' : 'of'}" visible="{= !${device>/system/phone} }">
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </Label>
+
+                                    <RadioButtonGroup id="rbgRankMode" columns="{= ${device>/system/phone} ? 1 : 2}" select=".onRankModeChange">
+                                        <buttons>
+                                            <RadioButton text="{= ${device>/system/phone} ? 'Top' : 'Top'}" selected="true" />
+                                            <RadioButton text="{= ${device>/system/phone} ? 'Bot' : 'Bottom'}" />
+                                        </buttons>
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </RadioButtonGroup>
+
+                                    <Label text="{= ${device>/system/phone} ? '' : 'by'}" visible="{= !${device>/system/phone} }">
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </Label>
+
+                                    <!-- Metric radio: Quantity / USD -->
+                                    <RadioButtonGroup id="rbgMetric" columns="{= ${device>/system/phone} ? 1 : 2}" select=".onMetricChange">
+                                        <buttons>
+                                            <RadioButton text="{= ${device>/system/phone} ? 'Qty' : 'Quantity'}" selected="true" />
+                                            <RadioButton text="USD" />
+                                        </buttons>
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </RadioButtonGroup>
+                                    <ToolbarSpacer>
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="Disappear" />
+                                        </layoutData>
+                                    </ToolbarSpacer>
+
+                                    <!-- Sort -->
+                                    <!-- <Button id="btnSort" text="{= ${device>/system/phone} ? '' : 'Sort'}" tooltip="Sort" icon="sap-icon://sort" type="Transparent" press=".onOpenSortDialog">
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </Button> -->
+
+                                    <!-- Export -->
+                                    <Button id="btnExport" text="{= ${device>/system/phone} ? '' : 'Export to Excel'}" tooltip="Export to Excel" icon="sap-icon://excel-attachment" type="Transparent" press=".onExportExcel">
+                                        <layoutData>
+                                            <OverflowToolbarLayoutData priority="NeverOverflow" />
+                                        </layoutData>
+                                    </Button>
+
+                                </OverflowToolbar>
+                            <!-- </ScrollContainer> -->
+
+                            <ScrollContainer id="tblScroll" width="100%" height="65%" vertical="true" horizontal="true" focusable="true">
+                                <layoutData>
+                                    <FlexItemData growFactor="1" />
+                                </layoutData>
+
+                                <!-- TABLE -->
+                                <Table id="idCountryTable" inset="false" growing="true" growingThreshold="10000" growingScrollToLoad="true" width="100%" items="{oGlobalModel>/CountryData}" sticky="ColumnHeaders">
+                                    <columns>
+                                     <Column width="10rem">
+                                            <Text text="Year" />
+                                        </Column>
+                                        <Column width="10rem">
+                                            <Text text="Country" />
+                                        </Column>
+                                        <Column hAlign="End" width="8rem">
+                                            <Text text="Quantity" />
+                                        </Column>
+                                        <Column hAlign="End" width="8rem">
+                                            <Text text="Quantity %" />
+                                        </Column>
+                                        <Column hAlign="End" width="10rem">
+                                            <Text text="USD Value" />
+                                        </Column>
+                                        <Column hAlign="End" width="8rem">
+                                            <Text text="USD %" />
+                                        </Column>
+                                        <Column hAlign="End" width="6rem">
+                                            <Text text="Rank" />
+                                        </Column>
+                                    </columns>
+                                    <items>
+                                        <ColumnListItem vAlign="Middle">
+                                            <cells>
+                                                <Text text="{oGlobalModel>Year}" />
+                                                <Text text="{oGlobalModel>Country}" />
+                                                <Text text="{oGlobalModel>Quantity}" />
+                                                <Text text="{path: 'oGlobalModel>QuantityPct', formatter: '.formatPct'}" />
+                                                <Text text="{path: 'oGlobalModel>Usd', formatter: '.formatUsd'}" />
+                                                <Text text="{path: 'oGlobalModel>UsdPct', formatter: '.formatPct'}" />
+                                                <Text text="{oGlobalModel>Rank}" />
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                            </ScrollContainer>
+                        </VBox>
+                    </layout:mainContent>
+                </layout:DynamicSideContent>
+            </Page>
+        </pages>
+    </App>
+</mvc:View>

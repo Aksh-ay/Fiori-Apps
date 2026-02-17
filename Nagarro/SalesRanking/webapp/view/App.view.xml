@@ -1,0 +1,35 @@
+<mvc:View controllerName="zsd_sales_rank.controller.App"
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m">
+    <App id="app">
+    
+    <Page enableScrolling="false">
+        <customHeader>
+            <Toolbar>
+                <!-- <Image src="images/jindal.png" width="40px" height="40px" /> -->
+                <ToolbarSpacer />
+                <Title text="Top/Bottom N Customers" level="H1" class="sapUiTinyMarginBegin" />
+                <ToolbarSpacer />
+            </Toolbar>
+        </customHeader>
+        <content>
+            <Toolbar >
+            </Toolbar>
+            <IconTabBar expanded="true" expandable="false" headerMode="Inline" select=".onTabSelect">
+                <items>
+                    <IconTabFilter id="tabCurrent11" text="Country wise Rank" key="current" class="IconTabBar" showAll="true">
+                        <mvc:XMLView viewName="zsd_sales_rank.view.CountryRank" />
+                    </IconTabFilter>
+                    <IconTabFilter id="tabHistorical1" text="Company wise Rank" key="historical" showAll="true">
+                        <mvc:XMLView viewName="zsd_sales_rank.view.CompanyRank" />
+                    </IconTabFilter>
+                </items>
+            </IconTabBar>
+        </content>
+
+        <footer>
+        </footer>
+    </Page>
+    </App>
+</mvc:View>
